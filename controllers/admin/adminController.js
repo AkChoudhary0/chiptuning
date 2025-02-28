@@ -1,33 +1,33 @@
 const mongoose = require("mongoose")
-const TYPE = require("../../models/car/type")
+const MAKE = require("../../models/car/make")
 const GENERATION = require("../../models/car/generation")
 const MODEL = require("../../models/car/model")
 const ENGINE = require("../../models/car/engine")
 const constant = require("../../config/constant")
 
-exports.createType = async (req, res) => {
+exports.createMake = async (req, res) => {
     try {
         let data = req.body
 
         //checking the type in payload
-        if (data.type == "") {
+        if (data.make == "") {
             res.send({
                 code: constant.errorCode,
-                message: "Type is required"
+                message: "make is required"
             })
             return
         }
         //checking the unique identifier
-        let checkType = await TYPE.findOne({ type: data.type })
-        if (checkType) {
+        let checkmake = await MAKE.findOne({ make: data.make })
+        if (checkmake) {
             res.send({
                 code: constant.errorCode,
-                message: "Type already exists"
+                message: "make already exists"
             })
             return;
         }
         //save data in to db
-        let saveData = await TYPE(data).save()
+        let saveData = await MAKE(data).save()
         res.send({
             code: constant.successCode,
             message: "Success",
@@ -46,19 +46,19 @@ exports.createModel = async (req, res) => {
         let data = req.body
 
         //checking the model in payload
-        if (data.model == "" || data.type == "") {
+        if (data.model == "" || data.make == "") {
             res.send({
                 code: constant.errorCode,
-                message: "model and type is required"
+                message: "model and make is required"
             })
             return
         }
         //checking the unique identifier
-        let checkType = await TYPE.findOne({ type: data.type })
-        if (!checkType) {
+        let checkmake = await MAKE.findOne({ make: data.make })
+        if (!checkmake) {
             res.send({
                 code: constant.errorCode,
-                message: "Invalid type is provided"
+                message: "Invalid make is provided"
             })
             return;
         }
@@ -72,7 +72,7 @@ exports.createModel = async (req, res) => {
             return;
         }
         //save data in to db
-        data.typeId = checkType._id
+        data.makeId = checkmake._id
 
         let saveData = await MODEL(data).save()
         res.send({
@@ -91,11 +91,11 @@ exports.createModel = async (req, res) => {
 exports.createGeneration = async (req, res) => {
     try {
         let data = req.body
-        let checkType = await TYPE.findOne({ type: data.type })
-        if (!checkType) {
+        let checkmake = await MAKE.findOne({ make: data.make })
+        if (!checkmake) {
             res.send({
                 code: constant.errorCode,
-                message: "Invalid type is provided"
+                message: "Invalid make is provided"
             })
             return;
         }
@@ -108,7 +108,7 @@ exports.createGeneration = async (req, res) => {
             })
             return;
         }
-        data.typeId = checkType._id
+        data.makeId = checkmake._id
         data.modelId = checkmodel._id
         let saveData =  await GENERATION(data).save()
         res.send({

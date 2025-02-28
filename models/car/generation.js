@@ -6,8 +6,8 @@ const generations = new Schema({
         type: String,
         default: null
     },
-    typeId: {
-        type: mongoose.Schema.Types.ObjectId, ref: "types",
+    makeId: {
+        type: mongoose.Schema.Types.ObjectId, ref: "makes",
         default: null
     },
     modelId:{

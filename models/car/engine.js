@@ -11,8 +11,8 @@ const engines = new Schema({
         type: mongoose.Schema.Types.ObjectId, ref: "generations",
         default: null
     },
-    typeId: {
-        type: mongoose.Schema.Types.ObjectId, ref: "types",
+    makeId: {
+        type: mongoose.Schema.Types.ObjectId, ref: "makes",
         default: null
     },
     modelId: {
