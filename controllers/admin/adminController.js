@@ -127,8 +127,39 @@ exports.createGeneration = async (req, res) => {
 exports.createEngine = async (req, res) => {
     try {
         let data = req.body
-         
-     }
+        let checkMake = await MAKE.findOne({ make: data.make })
+        if (!checkMake) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid make is provided!"
+            });
+            return;
+        }
+        let checkModel = await MODEL.findOne({ model: data.model })
+        if (!checkModel) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid model is provided!"
+            })
+            return
+        }
+        let checkGeneration = await GENERATION.findOne({ generation: data.generation });
+        if (!checkGeneration) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid generation provided"
+            })
+        }
+        data.makeId = checkMake._id
+        data.modelId = checkModel._id
+        data.generationId = checkGeneration._id        
+        let saveData = await ENGINE(data).save()
+        res.send({
+            code: constant.successCode,
+            message: "Success",
+            result: saveData
+        })
+    }
     catch (err) {
         res.send({
             code: constant.errorCode,
