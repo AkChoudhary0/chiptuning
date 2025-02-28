@@ -87,8 +87,8 @@ exports.createModel = async (req, res) => {
     }
 }
 
-exports.createGeneration =async(req,res)=>{
-    try{
+exports.createGeneration = async (req, res) => {
+    try {
         let data = req.body
         let checkType = await TYPE.findOne({ type: data.type })
         if (!checkType) {
@@ -103,14 +103,14 @@ exports.createGeneration =async(req,res)=>{
         if (!checkmodel) {
             res.send({
                 code: constant.errorCode,
-                message: "model already exists"
+                message: "Invalid model is provided"
             })
             return;
         }
-    }catch(err){
+    } catch (err) {
         res.send({
-            code:constant.errorCode,
-            message:err.message
+            code: constant.errorCode,
+            message: err.message
         })
     }
 }
