@@ -1,6 +1,4 @@
 
-
-
 const mongoose = require('mongoose')
 
 const dbUrl = "mongodb+srv://anil:PSiv5ry8RhScc5b0@cluster0.s4yb1xe.mongodb.net/chiptuning"

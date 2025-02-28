@@ -72,8 +72,9 @@ exports.createModel = async (req, res) => {
             return;
         }
         //save data in to db
-        let saveData = await MODEL(data).save()
         data.typeId = checkType._id
+
+        let saveData = await MODEL(data).save()
         res.send({
             code: constant.successCode,
             message: "Success",
@@ -107,6 +108,14 @@ exports.createGeneration = async (req, res) => {
             })
             return;
         }
+        data.typeId = checkType._id
+        data.modelId = checkmodel._id
+        let saveData =  await GENERATION(data).save()
+        res.send({
+            code: constant.successCode,
+            message: "Success",
+            result: saveData
+        })
     } catch (err) {
         res.send({
             code: constant.errorCode,
