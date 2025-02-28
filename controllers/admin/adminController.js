@@ -110,13 +110,26 @@ exports.createGeneration = async (req, res) => {
         }
         data.typeId = checkType._id
         data.modelId = checkmodel._id
-        let saveData =  await GENERATION(data).save()
+        let saveData = await GENERATION(data).save()
         res.send({
             code: constant.successCode,
             message: "Success",
             result: saveData
         })
     } catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.createEngine = async (req, res) => {
+    try {
+        let data = req.body
+         
+     }
+    catch (err) {
         res.send({
             code: constant.errorCode,
             message: err.message
