@@ -10,8 +10,8 @@ const generations = new Schema({
         type: mongoose.Schema.Types.ObjectId, ref: "types",
         default: null
     },
-    engineId:{
-        type: mongoose.Schema.Types.ObjectId, ref: "engines",
+    modelId:{
+        type: mongoose.Schema.Types.ObjectId, ref: "models",
         default: null
     }
 }, { timestamps: true })

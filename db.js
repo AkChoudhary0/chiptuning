@@ -1,32 +1,21 @@
-require("dotenv").config();
-const mongoose = require('mongoose');
 
-// db connection function
-const makeNewConnection = (uri) => {
-    const db = mongoose.createConnection(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
 
-    db.on('error', function (error) {
-        console.log(`MongoDB :: connection ${this.name} ${JSON.stringify(error)}`);
-        db.close().catch(() => console.log(`MongoDB :: failed to close connection ${this.name}`));
-    });
 
-    db.on('connected', function () {
-        console.log(`MongoDB :: connected ${this.name}`);
-    });
+const mongoose = require('mongoose')
 
-    db.on('disconnected', function () {
-        console.log(`MongoDB :: disconnected ${this.name}`);
-    });
+const dbUrl = "mongodb+srv://anil:PSiv5ry8RhScc5b0@cluster0.s4yb1xe.mongodb.net/chiptuning"
 
-    return db;
+
+const connection = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 }
 
-
-const userConnection = makeNewConnection(`${process.env.DB_NAME}`); //user database 
-
-module.exports = {
-    userConnection
-};
+mongoose
+    .connect(dbUrl, connection)
+    .then((res) => {
+        console.info('Connected to db')
+    })
+    .catch((e) => {
+        console.log('Unable to connect to the db', e)
+    })
