@@ -271,6 +271,95 @@ exports.deleteMakeById = async (req, res) => {
     }
 }
 
+exports.deleteModelById = async (req, res) => {
+    try {
+        let data = req.body
+        let checkModel = await MODEL.findOne({ _id: req.params.modelId })
+        if (!checkModel) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid model Id!"
+            })
+        }
+        let option = { new: true }
+
+        //Update Model related to makes
+        let updateModels = await MODEL.updateMany({ _id: req.params.modelId }, { isDeleted: true }, { new: true })
+        //Update Generation related to makes
+        let updateGenerations = await GENERATION.updateMany({ modelId: req.params.modelId }, { isDeleted: true }, { new: true })
+        //Update Engines related to makes
+        let updateEngines = await ENGINE.updateMany({ modelId: req.params.modelId }, { isDeleted: true }, { new: true })
+        res.send({
+            code: constant.successCode,
+            result: updatedResponse
+        })
+
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.deleteGenerationById = async (req, res) => {
+    try {
+        let data = req.body
+        let checkGeneration = await GENERATION.findOne({ _id: req.params.generationId })
+        if (!checkGeneration) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid generation ID!"
+            })
+        }
+
+        //Update Generation related to makes
+        let updateGeneration = await GENERATION.updateMany({ _id: req.params.generationId }, { isDeleted: true }, { new: true })
+        //Update Engines related to makes
+        let updateEngines = await ENGINE.updateMany({ generationId: req.params.generationId }, { isDeleted: true }, { new: true })
+        res.send({
+            code: constant.successCode,
+            result: updatedResponse
+        })
+
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.deleteGenerationById = async (req, res) => {
+    try {
+        let data = req.body
+        let checkEngine = await GENERATION.findOne({ _id: req.params.engineId })
+        if (!checkEngine) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid engine ID!"
+            })
+        }
+
+        //Update Generation related to makes
+        //Update Engines related to makes
+        let updateEngines = await ENGINE.updateMany({ _id: req.params.engineId }, { isDeleted: true }, { new: true })
+        res.send({
+            code: constant.successCode,
+            result: updatedResponse
+        })
+
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
 exports.getMakes = async (req, res) => {
     try {
         // { "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
