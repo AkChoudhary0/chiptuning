@@ -249,7 +249,7 @@ exports.getGenerationById = async (req, res) => {
 exports.deleteMakeById = async (req, res) => {
     try {
         let data = req.body
-        let checkMake = await MAKE.findOne({ _id: data.make })
+        let checkMake = await MAKE.findOne({ _id: req.params.makeId })
         if (!checkMake) {
             res.send({
                 code: constant.errorCode,
@@ -257,7 +257,7 @@ exports.deleteMakeById = async (req, res) => {
             })
         }
         let option = { new: true }
-        let updatedResponse = await MAKE.findOneAndUpdate({ _id: data.make }, { isDeleted: true }, option);
+        let updatedResponse = await MAKE.findOneAndUpdate({ _id: req.params.makeId }, { isDeleted: true }, option);
         if (!updatedResponse) {
             res.send({
                 code: constant.errorCode,
@@ -266,11 +266,11 @@ exports.deleteMakeById = async (req, res) => {
             return
         }
         //Update Model related to makes
-        let updateModels = await MODEL.updateMany({ makeId: data.make }, { isDeleted: true }, { new: true })
+        let updateModels = await MODEL.updateMany({ makeId: req.params.makeId }, { isDeleted: true }, { new: true })
         //Update Generation related to makes
-        let updateGenerations = await GENERATION.updateMany({ makeId: data.make }, { isDeleted: true }, { new: true })
+        let updateGenerations = await GENERATION.updateMany({ makeId: req.params.makeId }, { isDeleted: true }, { new: true })
         //Update Engines related to makes
-        let updateEngines = await ENGINE.updateMany({ makeId: data.make }, { isDeleted: true }, { new: true })
+        let updateEngines = await ENGINE.updateMany({ makeId: req.params.makeId }, { isDeleted: true }, { new: true })
         res.send({
             code: constant.successCode,
             result: updatedResponse
