@@ -56,7 +56,7 @@ exports.createModel = async (req, res) => {
             return
         }
         //checking the unique identifier
-        let checkmake = await MAKE.findOne({ make: data.make })
+        let checkmake = await MAKE.findOne({ _id: data.make })
         if (!checkmake) {
             res.send({
                 code: constant.errorCode,
@@ -94,7 +94,7 @@ exports.createModel = async (req, res) => {
 exports.createGeneration = async (req, res) => {
     try {
         let data = req.body
-        let checkmake = await MAKE.findOne({ make: data.make })
+        let checkmake = await MAKE.findOne({ _id: data.make })
         if (!checkmake) {
             res.send({
                 code: constant.errorCode,
@@ -103,7 +103,7 @@ exports.createGeneration = async (req, res) => {
             return;
         }
 
-        let checkmodel = await MODEL.findOne({ model: data.model })
+        let checkmodel = await MODEL.findOne({ _id: data.model })
         if (!checkmodel) {
             res.send({
                 code: constant.errorCode,
@@ -131,7 +131,7 @@ exports.createGeneration = async (req, res) => {
 exports.createEngine = async (req, res) => {
     try {
         let data = req.body
-        let checkMake = await MAKE.findOne({ make: data.make })
+        let checkMake = await MAKE.findOne({ _id: data.make })
         if (!checkMake) {
             res.send({
                 code: constant.errorCode,
@@ -139,7 +139,7 @@ exports.createEngine = async (req, res) => {
             });
             return;
         }
-        let checkModel = await MODEL.findOne({ model: data.model })
+        let checkModel = await MODEL.findOne({ _id: data.model })
         if (!checkModel) {
             res.send({
                 code: constant.errorCode,
@@ -147,7 +147,7 @@ exports.createEngine = async (req, res) => {
             })
             return
         }
-        let checkGeneration = await GENERATION.findOne({ generation: data.generation });
+        let checkGeneration = await GENERATION.findOne({ _id: data.generation });
         if (!checkGeneration) {
             res.send({
                 code: constant.errorCode,
@@ -189,6 +189,62 @@ exports.getMakes = async (req, res) => {
     }
 }
 
+//Get Model By type id
+exports.getModelByMakeId = async (req, res) => {
+    try {
+        let data = req.body
+        let checkMake = await MAKE.find({ _id: data.makeId, status: true, isDeleted: false })
+        if (!checkMake) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid Id!"
+            })
+            return
+        }
+
+        let models = await MODEL.find({ makeId: data.makeId, status: true, isDeleted: false })
+        res.send({
+            code: constant.successCode,
+            result: models
+        })
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+//Get Generation by Model and Make
+
+exports.getGenerationById = async (req, res) => {
+    try {
+        let checkMake = await MAKE.findOne({ _id: data.makeId, isDeleted: false, status: true });
+        if (!checkMake) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid Make Id"
+            });
+            return
+        }
+        let checkModel = await MODEL.findOne({ _id: data.modelId, isDeleted: false, status: true });
+        if (!checkModel) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid Model Id"
+            })
+        }
+
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+//Get Models
 exports.getModels = async (req, res) => {
     try {
         let data = req.body
@@ -206,6 +262,7 @@ exports.getModels = async (req, res) => {
     }
 }
 
+//Get generations
 exports.getGeneration = async (req, res) => {
     try {
         let data = req.body
@@ -223,6 +280,7 @@ exports.getGeneration = async (req, res) => {
     }
 }
 
+//Get Engines
 exports.getEngine = async (req, res) => {
     try {
         let data = req.body
@@ -239,7 +297,8 @@ exports.getEngine = async (req, res) => {
         })
     }
 }
-//
+
+//Get Vehicle dropdown
 exports.getVehicleDropDown = async (req, res) => {
     try {
         let data = req.body
@@ -268,7 +327,6 @@ exports.getVehicleDropDown = async (req, res) => {
 
                 }
             },
-
             {
                 $lookup: {
                     'from': 'models',
@@ -279,7 +337,8 @@ exports.getVehicleDropDown = async (req, res) => {
                         {
                             $match: {
                                 $and: [
-                                    matchModelId
+                                    matchModelId,
+                                    // { 'makeId': new mongoose.Types.ObjectId(data.makeId) }
                                 ]
                             }
                         }
@@ -296,7 +355,9 @@ exports.getVehicleDropDown = async (req, res) => {
                         {
                             $match: {
                                 $and: [
-                                    matchGenerationId
+                                    matchGenerationId,
+                                    // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
+                                    // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
                                 ]
                             }
                         }
@@ -313,7 +374,10 @@ exports.getVehicleDropDown = async (req, res) => {
                         {
                             $match: {
                                 $and: [
-                                    matchEngineId
+                                    matchEngineId,
+                                    // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
+                                    // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
+                                    // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
                                 ]
                             }
                         }
@@ -331,8 +395,8 @@ exports.getVehicleDropDown = async (req, res) => {
                                     as: "modelData",
                                     cond: {
                                         $and: [
-                                            { $eq: ["$$modelData.makeId", "$_id"] },
-                                            { $in: ["$$modelData._id", "$generations.modelId"] },
+                                             { $eq: ["$$modelData.makeId", "$_id"] },
+                                             { $ne: [data.makeId,''] },
                                             {
                                                 $or: [
                                                     { $in: ["$$modelData._id", "$generations.modelId"] },  // If engines exist, match modelId
@@ -365,6 +429,9 @@ exports.getVehicleDropDown = async (req, res) => {
                                     cond: {
                                         $and: [
                                             { $eq: ["$$gen.makeId", "$_id"] }, // Make sure generation belongs to the current make
+                                            { $ne: [data.modelId,''] },
+                                            { $ne: [data.makeId,''] },
+
                                             {
                                                 $or: [
                                                     { $in: ["$$gen.modelId", "$models._id"] },  // If engines exist, match modelId
@@ -395,6 +462,9 @@ exports.getVehicleDropDown = async (req, res) => {
                                     cond: {
                                         $and: [
                                             { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
+                                            { $ne: [data.modelId,''] },
+                                            { $ne: [data.makeId,''] },
+                                            { $ne: [data.generationId,''] },
                                             // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
                                             {
                                                 $or: [
