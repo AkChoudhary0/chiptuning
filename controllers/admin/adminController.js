@@ -46,7 +46,6 @@ exports.createMake = async (req, res) => {
 exports.createModel = async (req, res) => {
     try {
         let data = req.body
-
         //checking the model in payload
         if (data.model == "" || data.make == "") {
             res.send({
@@ -175,7 +174,7 @@ exports.createEngine = async (req, res) => {
 // Get All Makes
 exports.getMakes = async (req, res) => {
     try {
-        let allMakes = await MAKE.find({})
+        let allMakes = await MAKE.find({ isDeleted: false })
         res.send({
             code: constant.successCode,
             result: allMakes
@@ -193,7 +192,7 @@ exports.getMakes = async (req, res) => {
 exports.getModelByMakeId = async (req, res) => {
     try {
         let data = req.body
-        let checkMake = await MAKE.find({ _id:req.params.makeId, status: true, isDeleted: false })
+        let checkMake = await MAKE.find({ _id: req.params.makeId, status: true, isDeleted: false })
         if (!checkMake) {
             res.send({
                 code: constant.errorCode,
@@ -220,6 +219,7 @@ exports.getModelByMakeId = async (req, res) => {
 
 exports.getGenerationById = async (req, res) => {
     try {
+        
         let checkMake = await MAKE.findOne({ _id: data.makeId, isDeleted: false, status: true });
         if (!checkMake) {
             res.send({
@@ -244,6 +244,7 @@ exports.getGenerationById = async (req, res) => {
         })
     }
 }
+
 //Get Models
 exports.getModels = async (req, res) => {
     try {
@@ -395,8 +396,8 @@ exports.getVehicleDropDown = async (req, res) => {
                                     as: "modelData",
                                     cond: {
                                         $and: [
-                                             { $eq: ["$$modelData.makeId", "$_id"] },
-                                             { $ne: [data.makeId,''] },
+                                            { $eq: ["$$modelData.makeId", "$_id"] },
+                                            { $ne: [data.makeId, ''] },
                                             {
                                                 $or: [
                                                     { $in: ["$$modelData._id", "$generations.modelId"] },  // If engines exist, match modelId
@@ -429,8 +430,8 @@ exports.getVehicleDropDown = async (req, res) => {
                                     cond: {
                                         $and: [
                                             { $eq: ["$$gen.makeId", "$_id"] }, // Make sure generation belongs to the current make
-                                            { $ne: [data.modelId,''] },
-                                            { $ne: [data.makeId,''] },
+                                            { $ne: [data.modelId, ''] },
+                                            { $ne: [data.makeId, ''] },
 
                                             {
                                                 $or: [
@@ -462,9 +463,9 @@ exports.getVehicleDropDown = async (req, res) => {
                                     cond: {
                                         $and: [
                                             { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
-                                            { $ne: [data.modelId,''] },
-                                            { $ne: [data.makeId,''] },
-                                            { $ne: [data.generationId,''] },
+                                            { $ne: [data.modelId, ''] },
+                                            { $ne: [data.makeId, ''] },
+                                            { $ne: [data.generationId, ''] },
                                             // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
                                             {
                                                 $or: [
