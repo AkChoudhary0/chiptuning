@@ -243,7 +243,7 @@ exports.getGenerationById = async (req, res) => {
             message: err.message
         })
     }
-}
+} 
 
 //Delete Make by id
 exports.deleteMakeById = async (req, res) => {
