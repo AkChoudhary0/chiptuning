@@ -172,21 +172,7 @@ exports.createEngine = async (req, res) => {
 }
 
 // Get All Makes
-exports.getMakes = async (req, res) => {
-    try {
-        let allMakes = await MAKE.find({ isDeleted: false })
-        res.send({
-            code: constant.successCode,
-            result: allMakes
-        })
-    }
-    catch (err) {
-        res.send({
-            code: constant.errorCode,
-            message: err.message
-        })
-    }
-}
+
 
 //Get Model By type id
 exports.getModelByMakeId = async (req, res) => {
@@ -243,7 +229,7 @@ exports.getGenerationById = async (req, res) => {
             message: err.message
         })
     }
-} 
+}
 
 //Delete Make by id
 exports.deleteMakeById = async (req, res) => {
@@ -285,11 +271,44 @@ exports.deleteMakeById = async (req, res) => {
     }
 }
 
+exports.getMakes = async (req, res) => {
+    try {
+        let allMakes = await MAKE.find({ isDeleted: false })
+        res.send({
+            code: constant.successCode,
+            result: allMakes
+        })
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
 //Get Models
 exports.getModels = async (req, res) => {
     try {
         let data = req.body
-        let getModels = await MODEL.find({ status: true, isDeleted: false })
+        let getModels = await MODEL.aggregate([
+            {
+                $match: { status: true, isDeleted: false }
+            },
+            {
+                $lookup: {
+                    from: "makes",
+                    localField: "makeId",
+                    foreignField: "_id",
+                    as: "makeData"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$makeData"
+                }
+            },
+        ])
         res.send({
             code: constant.successCode,
             message: "Success",
@@ -308,7 +327,37 @@ exports.getModels = async (req, res) => {
 exports.getGeneration = async (req, res) => {
     try {
         let data = req.body
-        let getGeneration = await GENERATION.find({ status: true, isDeleted: false })
+        let getGeneration = await GENERATION.aggregate([
+            {
+                $match: { status: true, isDeleted: false }
+            },
+            {
+                $lookup: {
+                    from: "models",
+                    localField: "modelId",
+                    foreignField: "_id",
+                    as: "modelData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "makes",
+                    localField: "makeId",
+                    foreignField: "_id",
+                    as: "makeData"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$modelData",
+                }
+            },
+            {
+                $unwind: {
+                    path: "$makeData",
+                }
+            }
+        ])
         res.send({
             code: constant.successCode,
             message: "Success",
@@ -326,7 +375,50 @@ exports.getGeneration = async (req, res) => {
 exports.getEngine = async (req, res) => {
     try {
         let data = req.body
-        let getEngine = await ENGINE.find({ status: true, isDeleted: false }).
+        let getEngine = await ENGINE.aggregate([
+            {
+                $match: { status: true, isDeleted: false }
+            },
+            {
+                $lookup: {
+                    from: "models",
+                    localField: "modelId",
+                    foreignField: "_id",
+                    as: "modelData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "makes",
+                    localField: "makeId",
+                    foreignField: "_id",
+                    as: "makeData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "generations",
+                    localField: "generationId",
+                    foreignField: "_id",
+                    as: "generationData"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$modelData",
+                }
+            },
+            {
+                $unwind: {
+                    path: "$makeData",
+                }
+            },
+            {
+                $unwind: {
+                    path: "$generationData",
+                }
+            }
+        ]).
             res.send({
                 code: constant.successCode,
                 message: "Success",
