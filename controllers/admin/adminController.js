@@ -273,9 +273,11 @@ exports.deleteMakeById = async (req, res) => {
 
 exports.getMakes = async (req, res) => {
     try {
-        let allMakes = await MAKE.find({ isDeleted: false })
+        // { "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
+        let allMakes = await MAKE.find({ isDeleted: false, "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } })
         res.send({
             code: constant.successCode,
+            message: "Success",
             result: allMakes
         })
     }
@@ -293,14 +295,25 @@ exports.getModels = async (req, res) => {
         let data = req.body
         let getModels = await MODEL.aggregate([
             {
-                $match: { status: true, isDeleted: false }
+                $match: {
+                    $and: [
+                        { "model": { '$regex': data.model ? data.model.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
+                        { status: true },
+                        { isDeleted: false }
+                    ]
+                }
             },
             {
                 $lookup: {
                     from: "makes",
                     localField: "makeId",
                     foreignField: "_id",
-                    as: "makeData"
+                    as: "makeData",
+                    // pipeline: [
+                    //     {
+                    //         $match: { "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
+                    //     }
+                    // ]
                 }
             },
             {
@@ -308,6 +321,9 @@ exports.getModels = async (req, res) => {
                     path: "$makeData"
                 }
             },
+            {
+                $match: { "makeData.make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
+            }
         ])
         res.send({
             code: constant.successCode,
@@ -329,7 +345,13 @@ exports.getGeneration = async (req, res) => {
         let data = req.body
         let getGeneration = await GENERATION.aggregate([
             {
-                $match: { status: true, isDeleted: false }
+                $match: {
+                    $and: [
+                        { "generation": { '$regex': data.generation ? data.generation.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
+                        { status: true },
+                        { isDeleted: false }
+                    ]
+                }
             },
             {
                 $lookup: {
@@ -355,6 +377,14 @@ exports.getGeneration = async (req, res) => {
             {
                 $unwind: {
                     path: "$makeData",
+                }
+            },
+            {
+                $match: {
+                    $and: [
+                        { "makeData.make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
+                        { "modelData.model": { '$regex': data.model ? data.model.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
+                    ]
                 }
             }
         ])
@@ -416,6 +446,16 @@ exports.getEngine = async (req, res) => {
             {
                 $unwind: {
                     path: "$generationData",
+                }
+            },
+            {
+                $match: {
+                    $and: [
+                        { "makeData.make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
+                        { "modelData.model": { '$regex': data.model ? data.model.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
+                        { "generationData.generation": { '$regex': data.generation ? data.generation.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
+
+                    ]
                 }
             }
         ]).
