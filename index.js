@@ -7,11 +7,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const http = require('http')
 var cors = require('cors')
-app.use(cors())
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 
 var app = express();
+app.use(cors())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
