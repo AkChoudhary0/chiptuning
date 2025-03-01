@@ -219,7 +219,7 @@ exports.getModelByMakeId = async (req, res) => {
 
 exports.getGenerationById = async (req, res) => {
     try {
-        
+
         let checkMake = await MAKE.findOne({ _id: data.makeId, isDeleted: false, status: true });
         if (!checkMake) {
             res.send({
@@ -235,6 +235,46 @@ exports.getGenerationById = async (req, res) => {
                 message: "Invalid Model Id"
             })
         }
+
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+//Delete Make by id
+exports.deleteMakeById = async (req, res) => {
+    try {
+        let data = req.body
+        let checkMake = await MAKE.findOne({ _id: data.make })
+        if (!checkMake) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid make Id!"
+            })
+        }
+        let option = { new: true }
+        let updatedResponse = await MAKE.findOneAndUpdate({ _id: data.make }, { isDeleted: true }, option);
+        if (!updatedResponse) {
+            res.send({
+                code: constant.errorCode,
+                message: "Unable to update"
+            });
+            return
+        }
+        //Update Model related to makes
+        let updateModels = await MODEL.updateMany({ makeId: data.make }, { isDeleted: true }, { new: true })
+        //Update Generation related to makes
+        let updateGenerations = await GENERATION.updateMany({ makeId: data.make }, { isDeleted: true }, { new: true })
+        //Update Engines related to makes
+        let updateEngines = await ENGINE.updateMany({ makeId: data.make }, { isDeleted: true }, { new: true })
+        res.send({
+            code: constant.successCode,
+            result: updatedResponse
+        })
 
     }
     catch (err) {
@@ -262,6 +302,7 @@ exports.getModels = async (req, res) => {
         })
     }
 }
+
 
 //Get generations
 exports.getGeneration = async (req, res) => {
