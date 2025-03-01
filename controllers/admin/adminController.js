@@ -190,7 +190,7 @@ exports.getModelByMakeId = async (req, res) => {
         let models = await MODEL.find({ makeId: req.params.makeId, status: true, isDeleted: false })
         res.send({
             code: constant.successCode,
-            message:"Success!",
+            message: "Success!",
             result: models
         })
     }
@@ -260,7 +260,7 @@ exports.deleteMakeById = async (req, res) => {
         let updateEngines = await ENGINE.updateMany({ makeId: req.params.makeId }, { isDeleted: true }, { new: true })
         res.send({
             code: constant.successCode,
-            message:"Success!",
+            message: "Success!",
             result: updatedResponse
         })
 
@@ -499,7 +499,13 @@ exports.getEngine = async (req, res) => {
         let data = req.body
         let getEngine = await ENGINE.aggregate([
             {
-                $match: { status: true, isDeleted: false }
+                $match: {
+                    $and: [
+                        { "engine": { '$regex': data.engine ? data.engine.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
+                        { isDeleted: false },
+                        { status: true }
+                    ]
+                }
             },
             {
                 $lookup: {
@@ -551,11 +557,11 @@ exports.getEngine = async (req, res) => {
                 }
             }
         ])
-            res.send({
-                code: constant.successCode,
-                message: "Success",
-                result: getEngine
-            })
+        res.send({
+            code: constant.successCode,
+            message: "Success",
+            result: getEngine
+        })
     } catch (err) {
         res.send({
             code: constant.errorCode,
@@ -759,7 +765,7 @@ exports.getVehicleDropDown = async (req, res) => {
         let response = await MAKE.aggregate(pipeline)
         res.send({
             code: constant.successCode,
-            message:"Success!",
+            message: "Success!",
             result: response
         })
     }
