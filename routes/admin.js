@@ -8,6 +8,11 @@ const adminController = require('../controllers/admin/adminController.js')
 router.post("/createMake",adminController.createMake)
 router.post("/createGeneration",adminController.createGeneration)
 router.post("/createModel",adminController.createModel)
+router.post("/createEngine",adminController.createEngine)
+router.post("/getMakes",adminController.getMakes)
+// router.post("/getModels",adminController.getModels)
+router.post("/getVehicleDropDown",adminController.getVehicleDropDown)
+
 // router.post("/createMake",adminController.createMake)
 
 module.exports = router;

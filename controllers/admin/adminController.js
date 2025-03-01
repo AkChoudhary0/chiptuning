@@ -4,6 +4,7 @@ const GENERATION = require("../../models/car/generation")
 const MODEL = require("../../models/car/model")
 const ENGINE = require("../../models/car/engine")
 const constant = require("../../config/constant")
+//Create Make
 
 exports.createMake = async (req, res) => {
     try {
@@ -40,6 +41,7 @@ exports.createMake = async (req, res) => {
         })
     }
 }
+//Create Model
 
 exports.createModel = async (req, res) => {
     try {
@@ -88,6 +90,7 @@ exports.createModel = async (req, res) => {
     }
 }
 
+//Create Generation
 exports.createGeneration = async (req, res) => {
     try {
         let data = req.body
@@ -110,13 +113,269 @@ exports.createGeneration = async (req, res) => {
         }
         data.makeId = checkmake._id
         data.modelId = checkmodel._id
-        let saveData =  await GENERATION(data).save()
+        let saveData = await GENERATION(data).save()
         res.send({
             code: constant.successCode,
             message: "Success",
             result: saveData
         })
     } catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+// Create Engine 
+exports.createEngine = async (req, res) => {
+    try {
+        let data = req.body
+        let checkMake = await MAKE.findOne({ make: data.make })
+        if (!checkMake) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid make is provided!"
+            });
+            return;
+        }
+        let checkModel = await MODEL.findOne({ model: data.model })
+        if (!checkModel) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid model is provided!"
+            })
+            return
+        }
+        let checkGeneration = await GENERATION.findOne({ generation: data.generation });
+        if (!checkGeneration) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid generation provided"
+            })
+        }
+        data.makeId = checkMake._id
+        data.modelId = checkModel._id
+        data.generationId = checkGeneration._id
+        let saveData = await ENGINE(data).save()
+        res.send({
+            code: constant.successCode,
+            message: "Success",
+            result: saveData
+        })
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+// Get All Makes
+exports.getMakes = async (req, res) => {
+    try {
+        let allMakes = await MAKE.find({})
+        res.send({
+            code: constant.successCode,
+            result: allMakes
+        })
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.getVehicleDropDown = async (req, res) => {
+    try {
+        let data = req.body
+        let matchMakeId = {}
+        let matchModelId = {}
+        let matchGenerationId = {}
+        let matchEngineId = {}
+        if (data.makeId != '') {
+            matchMakeId = { _id: new mongoose.Types.ObjectId(data.makeId) }
+        }
+        if (data.modelId != '') {
+            matchModelId = { _id: new mongoose.Types.ObjectId(data.modelId) }
+        }
+        if (data.generationId != '') {
+            matchGenerationId = { _id: new mongoose.Types.ObjectId(data.generationId) }
+        }
+        if (data.engineId != '') {
+            matchEngineId = { _id: new mongoose.Types.ObjectId(data.engineId) }
+        }
+        let pipeline = [
+            {
+                $match: {
+                    $and: [
+                        matchMakeId
+                    ]
+
+                }
+            },
+            
+            {
+                $lookup: {
+                    'from': 'models',
+                    'localField': '_id',
+                    'foreignField': 'makeId',
+                    'as': 'models',
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    matchModelId
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    'from': 'generations',
+                    'localField': 'models._id',
+                    'foreignField': 'modelId',
+                    'as': 'generations',
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    matchGenerationId
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    'from': 'engines',
+                    'localField': 'generations._id',
+                    'foreignField': 'generationId',
+                    'as': 'engines',
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    matchEngineId
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    make: 1,
+                    models: {
+                        $map: {
+                            input: {
+                                $filter: {
+                                    input: "$models",
+                                    as: "modelData",
+                                    cond: {
+                                        $and: [
+                                            { $eq: ["$$modelData.makeId", "$_id"] }, 
+                                            { $in: ["$$modelData._id", "$generations.modelId"] },
+                                            { 
+                                                $or: [
+                                                    { $in: ["$$modelData._id", "$generations.modelId"] },  // If engines exist, match modelId
+                                                    { $eq: [{ $size: "$generations" }, 0] }  // If engines array is empty, allow all models
+                                                ]
+                                            },
+                                            { 
+                                                $or: [
+                                                    { $in: ["$$modelData._id", "$engines.modelId"] },  // If engines exist, match modelId
+                                                    { $eq: [{ $size: "$engines" }, 0] }  // If engines array is empty, allow all models
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            as: "models", // Alias for each pricebook
+                            in: {
+                                modelName: "$$models.model",
+                                modelId: "$$models._id",
+                            }
+                        }
+                    },
+                    generations: {
+                        $map: {
+                            input: {
+                                $filter: {
+                                    input: "$generations",
+                                    as: "gen",
+                                    cond: {
+                                        $and: [
+                                            { $eq: ["$$gen.makeId", "$_id"] }, // Make sure generation belongs to the current make
+                                            { 
+                                                $or: [
+                                                    { $in: ["$$gen.modelId", "$models._id"] },  // If engines exist, match modelId
+                                                    { $eq: [{ $size: "$models" }, 0] }  // If engines array is empty, allow all models
+                                                ]
+                                            },
+                                            { 
+                                                $or: [
+                                                    { $in: ["$$gen._id", "$engines.generationId"] },  // If engines exist, match modelId
+                                                    { $eq: [{ $size: "$engines" }, 0] }  // If engines array is empty, allow all models
+                                                ]
+                                            },
+                                            
+                                        ]
+                                    }
+                                }
+                            },
+                            as: "generation", // Alias for each pricebook
+                            in: "$$generation"
+                        }
+                    },
+                    engines:{
+                        $map: {
+                            input: {
+                                $filter: {
+                                    input: "$engines",
+                                    as: "eng",
+                                    cond: {
+                                        $and: [
+                                            { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
+                                            // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
+                                            { 
+                                                $or: [
+                                                    { $in: ["$$eng.modelId", "$models._id"] },  // If engines exist, match modelId
+                                                    { $eq: [{ $size: "$models" }, 0] }  // If engines array is empty, allow all models
+                                                ]
+                                            },
+                                            { 
+                                                $or: [
+                                                    { $in: ["$$eng.generationId", "$generations._id"] },  // If engines exist, match generation id
+                                                    { $eq: [{ $size: "$generations" }, 0] }  // If engines array is empty, allow all models
+                                                ]
+                                            },
+                                        ]
+                                    }
+                                }
+                            },
+                            as: "engine", // Alias for each pricebook
+                            in: "$$engine"
+                        }
+                    }
+                }
+            }
+
+        ]
+        let response = await MAKE.aggregate(pipeline)
+        res.send({
+            code: constant.successCode,
+            result: response
+        })
+    }
+    catch (err) {
         res.send({
             code: constant.errorCode,
             message: err.message
