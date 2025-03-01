@@ -15,6 +15,14 @@ const engines = new Schema({
         type: mongoose.Schema.Types.ObjectId, ref: "makes",
         default: null
     },
+    engineMethods: {
+        type: [],
+        default: []
+    },
+    specifications: {
+        type: {},
+        default: {}
+    },
     modelId: {
         type: mongoose.Schema.Types.ObjectId, ref: "models",
         default: null

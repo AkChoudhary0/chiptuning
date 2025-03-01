@@ -46,7 +46,6 @@ exports.createMake = async (req, res) => {
 exports.createModel = async (req, res) => {
     try {
         let data = req.body
-
         //checking the model in payload
         if (data.model == "" || data.make == "") {
             res.send({
@@ -220,6 +219,7 @@ exports.getModelByMakeId = async (req, res) => {
 
 exports.getGenerationById = async (req, res) => {
     try {
+        
         let checkMake = await MAKE.findOne({ _id: data.makeId, isDeleted: false, status: true });
         if (!checkMake) {
             res.send({
@@ -244,6 +244,7 @@ exports.getGenerationById = async (req, res) => {
         })
     }
 }
+
 //Get Models
 exports.getModels = async (req, res) => {
     try {
