@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node index.js",
-     "build": "echo 'No build step required'"
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -15,6 +15,7 @@
     "jade": "~1.11.0",
     "mongoose": "^8.11.0",
     "morgan": "~1.9.1",
-    "uglify-js": "^3.17.4"
+    "transformers": "^3.1.0",
+    "uglify-js": "^3.19.3"
   }
 }
