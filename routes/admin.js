@@ -10,6 +10,8 @@ router.post("/createGeneration",adminController.createGeneration)
 router.post("/createModel",adminController.createModel)
 router.post("/createEngine",adminController.createEngine)
 router.get("/getMakes",adminController.getMakes)
+router.get("/getModelByMakeId/:makeId",adminController.getModelByMakeId)
+router.get("/getMakes",adminController.getMakes)
 router.post("/getVehicleDropDown",adminController.getVehicleDropDown)
 
 // router.post("/createMake",adminController.createMake)

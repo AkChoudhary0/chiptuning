@@ -193,7 +193,7 @@ exports.getMakes = async (req, res) => {
 exports.getModelByMakeId = async (req, res) => {
     try {
         let data = req.body
-        let checkMake = await MAKE.find({ _id: data.makeId, status: true, isDeleted: false })
+        let checkMake = await MAKE.find({ _id:req.params.makeId, status: true, isDeleted: false })
         if (!checkMake) {
             res.send({
                 code: constant.errorCode,
@@ -202,7 +202,7 @@ exports.getModelByMakeId = async (req, res) => {
             return
         }
 
-        let models = await MODEL.find({ makeId: data.makeId, status: true, isDeleted: false })
+        let models = await MODEL.find({ makeId: req.params.makeId, status: true, isDeleted: false })
         res.send({
             code: constant.successCode,
             result: models
