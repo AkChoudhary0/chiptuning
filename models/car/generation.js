@@ -13,7 +13,15 @@ const generations = new Schema({
     modelId:{
         type: mongoose.Schema.Types.ObjectId, ref: "models",
         default: null
-    }
+    },
+    status: {
+        type: Boolean,
+        default: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
 }, { timestamps: true })
 
 module.exports = mongoose.model("generations", generations)

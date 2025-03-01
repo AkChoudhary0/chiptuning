@@ -41,8 +41,8 @@ exports.createMake = async (req, res) => {
         })
     }
 }
-//Create Model
 
+//Create Model
 exports.createModel = async (req, res) => {
     try {
         let data = req.body
@@ -189,6 +189,57 @@ exports.getMakes = async (req, res) => {
     }
 }
 
+exports.getModels = async (req, res) => {
+    try {
+        let data = req.body
+        let getModels = await MODEL.find({ status: true, isDeleted: false })
+        res.send({
+            code: constant.successCode,
+            message: "Success",
+            result: getModels
+        })
+    } catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.getGeneration = async (req, res) => {
+    try {
+        let data = req.body
+        let getGeneration = await GENERATION.find({ status: true, isDeleted: false })
+        res.send({
+            code: constant.successCode,
+            message: "Success",
+            result: getGeneration
+        })
+    } catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.getEngine = async (req, res) => {
+    try {
+        let data = req.body
+        let getEngine = await ENGINE.find({ status: true, isDeleted: false }).
+            res.send({
+                code: constant.successCode,
+                message: "Success",
+                result: getEngine
+            })
+    } catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+//
 exports.getVehicleDropDown = async (req, res) => {
     try {
         let data = req.body
@@ -217,7 +268,7 @@ exports.getVehicleDropDown = async (req, res) => {
 
                 }
             },
-            
+
             {
                 $lookup: {
                     'from': 'models',
@@ -280,15 +331,15 @@ exports.getVehicleDropDown = async (req, res) => {
                                     as: "modelData",
                                     cond: {
                                         $and: [
-                                            { $eq: ["$$modelData.makeId", "$_id"] }, 
+                                            { $eq: ["$$modelData.makeId", "$_id"] },
                                             { $in: ["$$modelData._id", "$generations.modelId"] },
-                                            { 
+                                            {
                                                 $or: [
                                                     { $in: ["$$modelData._id", "$generations.modelId"] },  // If engines exist, match modelId
                                                     { $eq: [{ $size: "$generations" }, 0] }  // If engines array is empty, allow all models
                                                 ]
                                             },
-                                            { 
+                                            {
                                                 $or: [
                                                     { $in: ["$$modelData._id", "$engines.modelId"] },  // If engines exist, match modelId
                                                     { $eq: [{ $size: "$engines" }, 0] }  // If engines array is empty, allow all models
@@ -314,19 +365,19 @@ exports.getVehicleDropDown = async (req, res) => {
                                     cond: {
                                         $and: [
                                             { $eq: ["$$gen.makeId", "$_id"] }, // Make sure generation belongs to the current make
-                                            { 
+                                            {
                                                 $or: [
                                                     { $in: ["$$gen.modelId", "$models._id"] },  // If engines exist, match modelId
                                                     { $eq: [{ $size: "$models" }, 0] }  // If engines array is empty, allow all models
                                                 ]
                                             },
-                                            { 
+                                            {
                                                 $or: [
                                                     { $in: ["$$gen._id", "$engines.generationId"] },  // If engines exist, match modelId
                                                     { $eq: [{ $size: "$engines" }, 0] }  // If engines array is empty, allow all models
                                                 ]
                                             },
-                                            
+
                                         ]
                                     }
                                 }
@@ -335,7 +386,7 @@ exports.getVehicleDropDown = async (req, res) => {
                             in: "$$generation"
                         }
                     },
-                    engines:{
+                    engines: {
                         $map: {
                             input: {
                                 $filter: {
@@ -345,13 +396,13 @@ exports.getVehicleDropDown = async (req, res) => {
                                         $and: [
                                             { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
                                             // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
-                                            { 
+                                            {
                                                 $or: [
                                                     { $in: ["$$eng.modelId", "$models._id"] },  // If engines exist, match modelId
                                                     { $eq: [{ $size: "$models" }, 0] }  // If engines array is empty, allow all models
                                                 ]
                                             },
-                                            { 
+                                            {
                                                 $or: [
                                                     { $in: ["$$eng.generationId", "$generations._id"] },  // If engines exist, match generation id
                                                     { $eq: [{ $size: "$generations" }, 0] }  // If engines array is empty, allow all models
