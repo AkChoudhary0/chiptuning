@@ -13,7 +13,7 @@ router.post("/createEngine",adminController.createEngine)
 router.post("/getGeneration",adminController.getGeneration)
 router.post("/getModels/:generationType",adminController.getModels)
 
-router.post("/getModels/:modelType",adminController.getModels)
+router.post("/getModels/:modelType",adminController.getModels) 
 router.post("/getEngine",adminController.getEngine)
 
 router.get("/getModelByMakeId/:makeId",adminController.getModelByMakeId)
