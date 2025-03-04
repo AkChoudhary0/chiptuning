@@ -27,6 +27,10 @@ const engines = new Schema({
         type: {},
         default: {}
     },
+    vehicle_type:{
+        type: String,
+        default: ''
+    },
     engineNumber: {
         type: String,
         default: ''
