@@ -6,6 +6,10 @@ const models = new Schema({
         type: String,
         default: null
     },
+    vehicle_type:{
+        type: String,
+        default: ''
+    },
     status: {
         type: Boolean,
         default: true

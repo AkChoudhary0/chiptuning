@@ -16,7 +16,7 @@ router.post("/getEngine",adminController.getEngine)
 
 router.get("/getModelByMakeId/:makeId",adminController.getModelByMakeId)
 
-router.post("/getMakes",adminController.getMakes)
+router.post("/getMakes/:makeType",adminController.getMakes)
 router.post("/getVehicleDropDown",adminController.getVehicleDropDown)
 
 router.delete("/deleteMakeById/:makeId",adminController.deleteMakeById) 

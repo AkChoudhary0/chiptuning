@@ -18,6 +18,10 @@ const generations = new Schema({
         type: Boolean,
         default: true
     },
+    vehicle_type:{
+        type: String,
+        default: ''
+    },
     isDeleted: {
         type: Boolean,
         default: false

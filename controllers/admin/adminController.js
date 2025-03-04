@@ -366,7 +366,7 @@ exports.getMakes = async (req, res) => {
     try {
         let data = req.body
         // { "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
-        let allMakes = await MAKE.find({ isDeleted: false, "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } })
+        let allMakes = await MAKE.find({ isDeleted: false, vehicle_type: req.params.makeType, "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } })
         res.send({
             code: constant.successCode,
             message: "Success",
