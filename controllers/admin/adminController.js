@@ -293,7 +293,7 @@ exports.deleteModelById = async (req, res) => {
         let updateEngines = await ENGINE.updateMany({ modelId: req.params.modelId }, { isDeleted: true }, { new: true })
         res.send({
             code: constant.successCode,
-            result: updatedResponse
+            result: updateModels
         })
 
     }
@@ -322,7 +322,7 @@ exports.deleteGenerationById = async (req, res) => {
         let updateEngines = await ENGINE.updateMany({ generationId: req.params.generationId }, { isDeleted: true }, { new: true })
         res.send({
             code: constant.successCode,
-            result: updatedResponse
+            result: updateGeneration
         })
 
     }
@@ -334,7 +334,7 @@ exports.deleteGenerationById = async (req, res) => {
     }
 }
 
-exports.deleteGenerationById = async (req, res) => {
+exports.deleteEngineById = async (req, res) => {
     try {
         let data = req.body
         let checkEngine = await GENERATION.findOne({ _id: req.params.engineId })
@@ -350,7 +350,7 @@ exports.deleteGenerationById = async (req, res) => {
         let updateEngines = await ENGINE.updateMany({ _id: req.params.engineId }, { isDeleted: true }, { new: true })
         res.send({
             code: constant.successCode,
-            result: updatedResponse
+            result: updateEngines
         })
 
     }

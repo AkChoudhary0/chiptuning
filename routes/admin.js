@@ -15,9 +15,14 @@ router.post("/getModels",adminController.getModels)
 router.post("/getEngine",adminController.getEngine)
 
 router.get("/getModelByMakeId/:makeId",adminController.getModelByMakeId)
-router.delete("/deleteMakeById/:makeId",adminController.deleteMakeById) 
+
 router.post("/getMakes",adminController.getMakes)
 router.post("/getVehicleDropDown",adminController.getVehicleDropDown)
+
+router.delete("/deleteMakeById/:makeId",adminController.deleteMakeById) 
+router.delete("/deleteGenerationById/:generationId",adminController.deleteGenerationById) 
+router.delete("/deleteEngineById/:engineId",adminController.deleteEngineById)
+router.delete("/deleteModelById/:modelId",adminController.deleteModelById)
 
 // router.post("/createMake",adminController.createMake)
 
