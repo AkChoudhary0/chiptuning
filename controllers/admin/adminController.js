@@ -201,7 +201,6 @@ exports.getModelByMakeId = async (req, res) => {
         })
     }
 }
-
 //Get Generation by Model and Make
 
 exports.getGenerationById = async (req, res) => {
@@ -366,7 +365,7 @@ exports.getMakes = async (req, res) => {
     try {
         let data = req.body
         // { "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
-        let allMakes = await MAKE.find({ isDeleted: false, vehicle_type:req.params.makeType, "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } })
+        let allMakes = await MAKE.find({ isDeleted: false, vehicle_type: req.params.makeType, "make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } })
         res.send({
             code: constant.successCode,
             message: "Success",
@@ -391,6 +390,7 @@ exports.getModels = async (req, res) => {
                     $and: [
                         { "model": { '$regex': data.model ? data.model.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
                         { status: true },
+                        { vehicle_type: req.params.modelType },
                         { isDeleted: false }
                     ]
                 }
@@ -441,7 +441,9 @@ exports.getGeneration = async (req, res) => {
                     $and: [
                         { "generation": { '$regex': data.generation ? data.generation.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
                         { status: true },
-                        { isDeleted: false }
+                        { isDeleted: false },
+                        { vehicle_type: req.params.generationType },
+
                     ]
                 }
             },
