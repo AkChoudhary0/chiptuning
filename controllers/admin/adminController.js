@@ -19,7 +19,7 @@ exports.createMake = async (req, res) => {
             return
         }
         //checking the unique identifier
-        let checkmake = await MAKE.findOne({ make: data.make })
+        let checkmake = await MAKE.findOne({ make: data.make, vehicle_type: data.vehicle_type })
         if (checkmake) {
             res.send({
                 code: constant.errorCode,
@@ -64,7 +64,7 @@ exports.createModel = async (req, res) => {
             return;
         }
 
-        let checkmodel = await MODEL.findOne({ model: data.model })
+        let checkmodel = await MODEL.findOne({ model: data.model, vehicle_type: data.vehicle_type })
         if (checkmodel) {
             res.send({
                 code: constant.errorCode,
@@ -170,9 +170,7 @@ exports.createEngine = async (req, res) => {
         })
     }
 }
-
 // Get All Makes
-
 
 //Get Model By type id
 exports.getModelByMakeId = async (req, res) => {
@@ -429,7 +427,6 @@ exports.getModels = async (req, res) => {
         })
     }
 }
-
 
 //Get generations
 exports.getGeneration = async (req, res) => {
