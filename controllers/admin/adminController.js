@@ -6,6 +6,7 @@ const ENGINE = require("../../models/car/engine")
 const constant = require("../../config/constant")
 const engine = require("../../models/car/engine")
 const ECU = require('../../models/car/ecu')
+const { patch } = require("../../routes/admin")
 //Create Make
 
 exports.createMake = async (req, res) => {
@@ -596,7 +597,8 @@ exports.getVehicleDropDown = async (req, res) => {
             {
                 $match: {
                     $and: [
-                        matchMakeId
+                        matchMakeId,
+                        { vehicle_type: req.params.vehicle_type }
                     ]
 
                 }
@@ -899,36 +901,113 @@ exports.getECU = async (req, res) => {
                 }
             },
             {
-                $unwind:{
-                    path:"$makesData",
-                    preserveNullAndEmptyArrays:true
+                $unwind: {
+                    path: "$makesData",
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
-                $unwind:{
-                    path:"$modelData",
-                    preserveNullAndEmptyArrays:true
+                $unwind: {
+                    path: "$modelData",
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
-                $unwind:{
-                    path:"$generationsData",
-                    preserveNullAndEmptyArrays:true
+                $unwind: {
+                    path: "$generationsData",
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
-                $unwind:{
-                    path:"$engineData",
-                    preserveNullAndEmptyArrays:true
+                $unwind: {
+                    path: "$engineData",
+                    preserveNullAndEmptyArrays: true
                 }
             }
 
         ])
 
         res.send({
-            code:constant.successCode,
-            message:"Success!",
-            result:ecu
+            code: constant.successCode,
+            message: "Success!",
+            result: ecu
+        })
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.getEngineById = async (req, res) => {
+    try {
+        let checkEngine = await ENGINE.findOne({ _id: req.params.engineId })
+        if (!checkEngine) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid engine id!"
+            });
+            return
+        }
+
+        let query = [
+            {
+                $match: {
+                    _id: req.params.engineId
+                }
+            },
+            {
+                $lookup: {
+                    from: "generations",
+                    localField: "generationId",
+                    foreignField: "_id",
+                    as: "generationData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "models",
+                    localField: "modelId",
+                    foreignField: "_id",
+                    as: "modelData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "makes",
+                    localField: "makeId",
+                    foreignField: "_id",
+                    as: "makesData"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$generationData",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $unwind: {
+                    path: "$modelData",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $unwind: {
+                    path: "$makesData",
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ]
+
+        let response = await ENGINE.aggregate(query);
+
+        res.send({
+            code: constant.successCode,
+            message: "Success!",
+            result: response
         })
     }
     catch (err) {
