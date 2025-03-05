@@ -4,6 +4,8 @@ const GENERATION = require("../../models/car/generation")
 const MODEL = require("../../models/car/model")
 const ENGINE = require("../../models/car/engine")
 const constant = require("../../config/constant")
+const engine = require("../../models/car/engine")
+const ECU = require('../../models/car/ecu')
 //Create Make
 
 exports.createMake = async (req, res) => {
@@ -569,6 +571,7 @@ exports.getEngine = async (req, res) => {
     }
 }
 
+
 //Get Vehicle dropdown
 exports.getVehicleDropDown = async (req, res) => {
     try {
@@ -766,6 +769,166 @@ exports.getVehicleDropDown = async (req, res) => {
             code: constant.successCode,
             message: "Success!",
             result: response
+        })
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+//Add ECU
+
+exports.addECU = async (req, res) => {
+    try {
+        let data = req.body
+
+        let checkECU = await ENGINE.findOne({ _id: data.ecu, engineId: data.engine })
+        if (checkECU) {
+            res.send({
+                code: constant.errorCode,
+                message: "ECU already exist!"
+            });
+            return;
+        }
+
+
+
+        let checkMake = await MAKE.findOne({ _id: data.make })
+
+        if (!checkMake) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid make is provided!"
+            });
+            return;
+        }
+
+
+        let checkModel = await MODEL.findOne({ _id: data.model })
+        if (!checkModel) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid model is provided!"
+            })
+            return
+        }
+        let checkGeneration = await GENERATION.findOne({ _id: data.generation });
+        if (!checkGeneration) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid generation provided"
+            })
+        }
+
+        let checkEngine = await ENGINE.findOne({ _id: data.engine })
+        if (!checkEngine) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid engine provide!"
+            });
+            return;
+        }
+
+        data.engineId = checkEngine._id
+        data.generationId = checkGeneration._id
+        data.modelId = checkModel._id
+        data.makeId = checkMake._id
+
+        const saveData = await ECU(data).save()
+
+        res.send({
+            code: constant.successCode,
+            message: "Success",
+            result: saveData
+        })
+    }
+    catch (err) {
+        res.send({
+            code: constant.errorCode,
+            message: err.message
+        })
+    }
+}
+
+exports.getECU = async (req, res) => {
+    try {
+        let data = req.body
+        let ecu = await ECU.aggregate([
+            {
+                $match: {
+                    $and: [
+                        { "ecu": { '$regex': data.ecu ? data.ecu.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
+                        { isDeleted: false },
+                        { status: true }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    from: "makes",
+                    localField: "$makeId",
+                    foreignField: "_id",
+                    as: "makesData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "models",
+                    localField: "$modelId",
+                    foreignField: "_id",
+                    as: "modelData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "generations",
+                    localField: "generationId",
+                    foreignField: "_id",
+                    as: "generationsData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "engines",
+                    localField: "engineId",
+                    foreignField: "_id",
+                    as: "engineData"
+                }
+            },
+            {
+                $unwind:{
+                    path:"$makesData",
+                    preserveNullAndEmptyArrays:true
+                }
+            },
+            {
+                $unwind:{
+                    path:"$modelData",
+                    preserveNullAndEmptyArrays:true
+                }
+            },
+            {
+                $unwind:{
+                    path:"$generationsData",
+                    preserveNullAndEmptyArrays:true
+                }
+            },
+            {
+                $unwind:{
+                    path:"$engineData",
+                    preserveNullAndEmptyArrays:true
+                }
+            }
+
+        ])
+
+        res.send({
+            code:constant.successCode,
+            message:"Success!",
+            result:ecu
         })
     }
     catch (err) {
