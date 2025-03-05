@@ -598,7 +598,7 @@ exports.getVehicleDropDown = async (req, res) => {
                 $match: {
                     $and: [
                         matchMakeId,
-                        { vehicle_type: req.params.vehicle_type }
+                        { vehicle_type: req.params.type }
                     ]
 
                 }

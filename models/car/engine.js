@@ -7,6 +7,10 @@ const engines = new Schema({
         type: String,
         default: null
     },
+    engineType: {
+        type: String,
+        default: null
+    },
     generationId: {
         type: mongoose.Schema.Types.ObjectId, ref: "generations",
         default: null
@@ -46,7 +50,7 @@ const engines = new Schema({
     ecu: {
         type: String,
         default: ''
-    },
+    },    
     ecu_type: {
         type: String,
         default: ''
@@ -55,7 +59,7 @@ const engines = new Schema({
         type: String,
         default: ''
     },
-
+    
     status: {
         type: Boolean,
         default: true

@@ -20,14 +20,10 @@ router.get("/getModelByMakeId/:makeId",adminController.getModelByMakeId)
 
 router.get("/getEngineById/:engineId",adminController.getEngineById)
 
-
-
 router.post("/getECU/",adminController.getECU)
 
-
-
 router.post("/getMakes/:makeType",adminController.getMakes)
-router.post("/getVehicleDropDown",adminController.getVehicleDropDown)
+router.post("/getVehicleDropDown/:type",adminController.getVehicleDropDown)
 
 router.delete("/deleteMakeById/:makeId",adminController.deleteMakeById) 
 router.delete("/deleteGenerationById/:generationId",adminController.deleteGenerationById) 
