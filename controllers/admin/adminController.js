@@ -505,7 +505,8 @@ exports.getEngine = async (req, res) => {
                     $and: [
                         { "engine": { '$regex': data.engine ? data.engine.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
                         { isDeleted: false },
-                        { status: true }
+                        { status: true },
+                        {vehicle_type:req.params.engineType}
                     ]
                 }
             },

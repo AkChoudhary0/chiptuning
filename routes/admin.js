@@ -14,7 +14,7 @@ router.post("/createEngine",adminController.createEngine)
 router.post("/getGeneration/:generationType",adminController.getGeneration)
 
 router.post("/getModels/:modelType",adminController.getModels) 
-router.post("/getEngine",adminController.getEngine)
+router.post("/getEngine/:engineType",adminController.getEngine)
 
 router.get("/getModelByMakeId/:makeId",adminController.getModelByMakeId)
 
