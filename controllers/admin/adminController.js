@@ -506,7 +506,8 @@ exports.getEngine = async (req, res) => {
                         { "engine": { '$regex': data.engine ? data.engine.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
                         { isDeleted: false },
                         { status: true },
-                        {vehicle_type:req.params.engineType}
+                        { vehicle_type: req.params.engineType }
+
                     ]
                 }
             },
@@ -537,16 +538,21 @@ exports.getEngine = async (req, res) => {
             {
                 $unwind: {
                     path: "$modelData",
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
                 $unwind: {
                     path: "$makeData",
+                    preserveNullAndEmptyArrays: true
+
                 }
             },
             {
                 $unwind: {
                     path: "$generationData",
+                    preserveNullAndEmptyArrays: true
+
                 }
             },
             {
@@ -554,7 +560,7 @@ exports.getEngine = async (req, res) => {
                     $and: [
                         { "makeData.make": { '$regex': data.make ? data.make.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
                         { "modelData.model": { '$regex': data.model ? data.model.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } },
-                        { "generationData.generation": { '$regex': data.generation ? data.generation.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
+                        //  { "generationData.generation": { '$regex': data.generation ? data.generation.replace(/\s+/g, ' ').trim() : '', '$options': 'i' } }
 
                     ]
                 }
