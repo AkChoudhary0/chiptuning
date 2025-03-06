@@ -794,7 +794,7 @@ exports.addECU = async (req, res) => {
     try {
         let data = req.body
 
-        let checkECU = await ECU.findOne({ _id: data.ecu, engineId: data.engine })
+        let checkECU = await ECU.findOne({ ecu: data.ecu, engineId: data.engine })
         if (checkECU) {
             res.send({
                 code: constant.errorCode,
