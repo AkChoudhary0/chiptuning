@@ -878,7 +878,7 @@ exports.getECU = async (req, res) => {
             {
                 $lookup: {
                     from: "makes",
-                    localField: "$makeId",
+                    localField: "makeId",
                     foreignField: "_id",
                     as: "makesData"
                 }
@@ -886,7 +886,7 @@ exports.getECU = async (req, res) => {
             {
                 $lookup: {
                     from: "models",
-                    localField: "$modelId",
+                    localField: "modelId",
                     foreignField: "_id",
                     as: "modelData"
                 }
