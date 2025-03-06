@@ -23,6 +23,7 @@ router.get("/getModelByMakeId/:makeId",adminController.getModelByMakeId)
 router.get("/getEngineById/:engineId",adminController.getEngineById)
 
 router.post("/getECU/",adminController.getECU)
+router.post("/addECU",adminController.addECU)
 
 router.post("/getMakes/:makeType",adminController.getMakes)
 router.post("/getVehicleDropDown/:type",adminController.getVehicleDropDown)
