@@ -1024,3 +1024,109 @@ exports.getEngineById = async (req, res) => {
         })
     }
 }
+
+//Get Engine details
+
+exports.getEngineDetail = async (req, res) => {
+    try {
+        let data = req.body
+        let checkMake = await MAKE.findOne({ _id: data.make })
+        if (!checkMake) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid make is provided!"
+            });
+            return;
+        }
+        let checkModel = await MODEL.findOne({ _id: data.model })
+        if (!checkModel) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid model is provided!"
+            })
+            return
+        }
+        let checkGeneration = await GENERATION.findOne({ _id: data.generation });
+        if (!checkGeneration) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid generation provided"
+            })
+        }
+
+        let checkEngine = await ENGINE.findOne({_id:data.engine})
+        if (!checkEngine) {
+            res.send({
+                code: constant.errorCode,
+                message: "Invalid engine provided"
+            })
+        }
+        let getEngine = await ENGINE.aggregate([
+            {
+                $match: {
+                    $and: [
+                        { "_id": data.engine },
+                        { isDeleted: false },
+                        { status: true },
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    from: "models",
+                    localField: "modelId",
+                    foreignField: "_id",
+                    as: "modelData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "makes",
+                    localField: "makeId",
+                    foreignField: "_id",
+                    as: "makeData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "generations",
+                    localField: "generationId",
+                    foreignField: "_id",
+                    as: "generationData"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$modelData",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $unwind: {
+                    path: "$makeData",
+                    preserveNullAndEmptyArrays: true
+
+                }
+            },
+            {
+                $unwind: {
+                    path: "$generationData",
+                    preserveNullAndEmptyArrays: true
+
+                }
+            },               
+        ])
+
+        res.send({
+            code:constant.successCode,
+            message:"Success",
+            result:getEngine
+        })
+     }
+    catch (err) {
+        res.send({
+            codE:constant.errorCode,
+            message:err.message
+        })
+    }
+}
