@@ -147,14 +147,29 @@ exports.createEngine = async (req, res) => {
       });
       return;
     }
-    let checkModel = await MODEL.findOne({ _id: data.model });
-    if (!checkModel) {
-      res.send({
-        code: constant.errorCode,
-        message: "Invalid model is provided!",
+    let checkModel;
+    if (data.model != "") {
+      checkModel = await MODEL.findOne({ _id: data.model });
+      if (!checkModel) {
+        res.send({
+          code: constant.errorCode,
+          message: "Invalid model is provided!",
+        });
+        return;
+      }
+      const checkExistDetail = await ENGINE.findOne({
+        modelId: data.model,
+        engine: data.engine,
       });
-      return;
+      if (checkExistDetail) {
+        res.send({
+          code: constant.errorCode,
+          message: "Already exist for this model!",
+        });
+        return;
+      }
     }
+
     let checkGeneration;
     if (data.generation != "") {
       checkGeneration = await GENERATION.findOne({ _id: data.generation });
@@ -167,6 +182,7 @@ exports.createEngine = async (req, res) => {
       }
       const checkExistDetail = await ENGINE.findOne({
         generationId: data.generation,
+        engine: data.engine,
       });
       if (checkExistDetail) {
         res.send({
@@ -179,7 +195,7 @@ exports.createEngine = async (req, res) => {
 
     data.makeId = checkMake._id;
     data.modelId = checkModel._id;
-    data.generationId = checkGeneration._id ? checkGeneration._id : null;
+    data.generationId = checkGeneration?._id ? checkGeneration?._id : null;
     let saveData = await ENGINE(data).save();
     res.send({
       code: constant.successCode,
