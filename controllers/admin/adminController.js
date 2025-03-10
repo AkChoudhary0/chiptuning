@@ -796,6 +796,26 @@ exports.getVehicleDropDown = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "engines",
+          localField: "models._id",
+          foreignField: "modelId",
+          as: "enginesForModel",
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  matchEngineId,
+                  // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
+                  // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
+                  // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
+                ],
+              },
+            },
+          ],
+        },
+      },
+      {
         $project: {
           make: 1,
           models: {
@@ -983,6 +1003,7 @@ exports.addECU = async (req, res) => {
   }
 };
 
+//Get ECU
 exports.getECU = async (req, res) => {
   try {
     let data = req.body;
@@ -1072,6 +1093,7 @@ exports.getECU = async (req, res) => {
   }
 };
 
+//Get ENgine By id
 exports.getEngineById = async (req, res) => {
   try {
     let checkEngine = await ENGINE.findOne({ _id: req.params.engineId });
