@@ -718,6 +718,8 @@ exports.getVehicleDropDown = async (req, res) => {
     let data = req.body;
     let matchMakeId = {};
     let matchModelId = {};
+
+    console.log("dfsfsdsdfdsfdssdfdsddfs")
     let matchGenerationId = {};
     let matchEngineId = {};
     if (data.makeId != "") {
@@ -894,7 +896,7 @@ exports.getVehicleDropDown = async (req, res) => {
                       { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
                       { $ne: [data.modelId, ""] },
                       { $ne: [data.makeId, ""] },
-                      { $ne: [data.generationId, ""] },
+                    //   { $ne: [data.generationId, ""] },
                       // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
                       {
                         $or: [
@@ -904,8 +906,8 @@ exports.getVehicleDropDown = async (req, res) => {
                       },
                       {
                         $or: [
-                          { $in: ["$$eng.generationId", "$generations._id"] }, // If engines exist, match generation id
-                          { $eq: [{ $size: "$generations" }, 0] }, // If engines array is empty, allow all models
+                          { $in: ["$$eng.generationId", "$generations._id"] },
+                          { $eq: [{ $size: "$generations" }, 0] }, 
                         ],
                       },
                     ],
