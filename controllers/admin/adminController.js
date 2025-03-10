@@ -769,8 +769,6 @@ exports.getVehicleDropDown = async (req, res) => {
               $match: {
                 $and: [
                   matchGenerationId,
-                  // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
-                  // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
                 ],
               },
             },
