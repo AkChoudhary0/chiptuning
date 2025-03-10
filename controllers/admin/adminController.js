@@ -579,7 +579,6 @@ exports.getEngine = async (req, res) => {
     }
 }
 
-
 //Get Vehicle dropdown
 exports.getVehicleDropDown = async (req, res) => {
     try {
@@ -862,6 +861,7 @@ exports.addECU = async (req, res) => {
     }
 }
 
+//Get ECU
 exports.getECU = async (req, res) => {
     try {
         let data = req.body
@@ -948,6 +948,7 @@ exports.getECU = async (req, res) => {
     }
 }
 
+//Get ENgine By id
 exports.getEngineById = async (req, res) => {
     try {
         let checkEngine = await ENGINE.findOne({ _id: req.params.engineId })
