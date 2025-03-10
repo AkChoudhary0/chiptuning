@@ -797,26 +797,26 @@ exports.getVehicleDropDown = async (req, res) => {
           ],
         },
       },
-      {
-        $lookup: {
-          from: "engines",
-          localField: "models._id",
-          foreignField: "modelId",
-          as: "enginesForModel",
-          pipeline: [
-            {
-              $match: {
-                $and: [
-                  matchEngineId,
-                  // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
-                  // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
-                  // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
-                ],
-              },
-            },
-          ],
-        },
-      },
+    //   {
+    //     $lookup: {
+    //       from: "engines",
+    //       localField: "models._id",
+    //       foreignField: "modelId",
+    //       as: "enginesForModel",
+    //       pipeline: [
+    //         {
+    //           $match: {
+    //             $and: [
+    //               matchEngineId,
+    //               // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
+    //               // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
+    //               // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
+    //             ],
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   },
       {
         $project: {
           make: 1,
@@ -836,12 +836,12 @@ exports.getVehicleDropDown = async (req, res) => {
                           { $eq: [{ $size: "$generations" }, 0] }, // If engines array is empty, allow all models
                         ],
                       },
-                      {
-                        $or: [
-                          { $in: ["$$modelData._id", "$engines.modelId"] }, // If engines exist, match modelId
-                          { $eq: [{ $size: "$engines" }, 0] }, // If engines array is empty, allow all models
-                        ],
-                      },
+                    //   {
+                    //     $or: [
+                    //     //  { $in: ["$$modelData._id", "$engines.modelId"] }, // If engines exist, match modelId
+                    //      { $eq: [{ $size: "$engines" }, 0] }, // If engines array is empty, allow all models
+                    //     ],
+                    //   },
                     ],
                   },
                 },
