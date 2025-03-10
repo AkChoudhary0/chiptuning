@@ -1110,7 +1110,7 @@ exports.getEngineById = async (req, res) => {
     let query = [
       {
         $match: {
-          _id: req.params.engineId,
+          _id: new mongoose.Types.ObjectId(req.params.engineId),
         },
       },
       {
