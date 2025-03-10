@@ -149,16 +149,20 @@ exports.createEngine = async (req, res) => {
             })
             return
         }
-        let checkGeneration = await GENERATION.findOne({ _id: data.generation });
-        if (!checkGeneration) {
-            res.send({
-                code: constant.errorCode,
-                message: "Invalid generation provided"
-            })
+        let checkGeneration;
+        if(data.generation){
+             checkGeneration = await GENERATION.findOne({ _id: data.generation });
+            if (!checkGeneration) {
+                res.send({
+                    code: constant.errorCode,
+                    message: "Invalid generation provided"
+                })
+            }
         }
+     
         data.makeId = checkMake._id
         data.modelId = checkModel._id
-        data.generationId = checkGeneration._id
+        data.generationId = checkGeneration._id ? checkGeneration._id : null
         let saveData = await ENGINE(data).save()
         res.send({
             code: constant.successCode,
@@ -1066,7 +1070,7 @@ exports.getEngineDetail = async (req, res) => {
             {
                 $match: {
                     $and: [
-                        { "_id": data.engine },
+                        { "_id": new mongoose.Types.ObjectId(data.engine) },
                         { isDeleted: false },
                         { status: true },
                     ]
