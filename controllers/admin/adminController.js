@@ -156,10 +156,20 @@ exports.createEngine = async (req, res) => {
                 res.send({
                     code: constant.errorCode,
                     message: "Invalid generation provided"
-                })
+                });
+                return
             }
         }
-     
+        
+        const checkExistDetail = await ENGINE.findOne({generationId:data.generation});
+        if(checkExistDetail){
+            res.send({
+                code: constant.errorCode,
+                message: "Already exist for this generation!"
+            });
+            return
+        }
+
         data.makeId = checkMake._id
         data.modelId = checkModel._id
         data.generationId = checkGeneration._id ? checkGeneration._id : null
