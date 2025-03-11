@@ -5,6 +5,8 @@ const MODEL = require("../../models/car/model");
 const ENGINE = require("../../models/car/engine");
 const constant = require("../../config/constant");
 const engine = require("../../models/car/engine");
+const USER = require("../../models/user/user");
+
 const ECU = require("../../models/car/ecu");
 const { patch } = require("../../routes/admin");
 //Create Make
@@ -719,7 +721,7 @@ exports.getVehicleDropDown = async (req, res) => {
     let matchMakeId = {};
     let matchModelId = {};
 
-    console.log("dfsfsdsdfdsfdssdfdsddfs")
+    console.log("dfsfsdsdfdsfdssdfdsddfs");
     let matchGenerationId = {};
     let matchEngineId = {};
     if (data.makeId != "") {
@@ -769,9 +771,7 @@ exports.getVehicleDropDown = async (req, res) => {
           pipeline: [
             {
               $match: {
-                $and: [
-                  matchGenerationId,
-                ],
+                $and: [matchGenerationId],
               },
             },
           ],
@@ -797,26 +797,26 @@ exports.getVehicleDropDown = async (req, res) => {
           ],
         },
       },
-    //   {
-    //     $lookup: {
-    //       from: "engines",
-    //       localField: "models._id",
-    //       foreignField: "modelId",
-    //       as: "enginesForModel",
-    //       pipeline: [
-    //         {
-    //           $match: {
-    //             $and: [
-    //               matchEngineId,
-    //               // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
-    //               // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
-    //               // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
-    //             ],
-    //           },
-    //         },
-    //       ],
-    //     },
-    //   },
+      //   {
+      //     $lookup: {
+      //       from: "engines",
+      //       localField: "models._id",
+      //       foreignField: "modelId",
+      //       as: "enginesForModel",
+      //       pipeline: [
+      //         {
+      //           $match: {
+      //             $and: [
+      //               matchEngineId,
+      //               // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
+      //               // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
+      //               // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
+      //             ],
+      //           },
+      //         },
+      //       ],
+      //     },
+      //   },
       {
         $project: {
           make: 1,
@@ -836,12 +836,12 @@ exports.getVehicleDropDown = async (req, res) => {
                           { $eq: [{ $size: "$generations" }, 0] }, // If engines array is empty, allow all models
                         ],
                       },
-                    //   {
-                    //     $or: [
-                    //     //  { $in: ["$$modelData._id", "$engines.modelId"] }, // If engines exist, match modelId
-                    //      { $eq: [{ $size: "$engines" }, 0] }, // If engines array is empty, allow all models
-                    //     ],
-                    //   },
+                      //   {
+                      //     $or: [
+                      //     //  { $in: ["$$modelData._id", "$engines.modelId"] }, // If engines exist, match modelId
+                      //      { $eq: [{ $size: "$engines" }, 0] }, // If engines array is empty, allow all models
+                      //     ],
+                      //   },
                     ],
                   },
                 },
@@ -896,7 +896,7 @@ exports.getVehicleDropDown = async (req, res) => {
                       { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
                       { $ne: [data.modelId, ""] },
                       { $ne: [data.makeId, ""] },
-                    //   { $ne: [data.generationId, ""] },
+                      //   { $ne: [data.generationId, ""] },
                       // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
                       {
                         $or: [
@@ -907,7 +907,7 @@ exports.getVehicleDropDown = async (req, res) => {
                       {
                         $or: [
                           { $in: ["$$eng.generationId", "$generations._id"] },
-                          { $eq: [{ $size: "$generations" }, 0] }, 
+                          { $eq: [{ $size: "$generations" }, 0] },
                         ],
                       },
                     ],
@@ -1270,6 +1270,70 @@ exports.getEngineDetail = async (req, res) => {
   } catch (err) {
     res.send({
       codE: constant.errorCode,
+      message: err.message,
+    });
+  }
+};
+
+//Get User List
+exports.getUserList = async (req, res) => {
+  try {
+    let { page = 1, limit = 10 } = req.body;
+
+    let userList = await USER.find({})
+      .sort({ createdAt: -1 })
+      .skip(page * limit - limit)
+      .limit(limit);
+
+    res.send({
+      code: constant.successCode,
+      message: "Success!",
+      result: userList,
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message,
+    });
+  }
+};
+
+//Update User
+exports.updateUserDetail = async (req, res) => {
+  try {
+    let userId = req.params.userId;
+    let data = req.body;
+    let checkUser = await USER.findOne({ _id: userId });
+    if (!checkUser) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid user id!",
+      });
+      return;
+    }
+
+    if (data.credits && data.credits != "") {
+      data.credits = Number(checkUser.credits) + Number(data.credits);
+    }
+
+    let updateUser = await USER.findByIdAndUpdate({ _id: userId }, data, {
+      new: true,
+    });
+    if (!updateUser) {
+      res.send({
+        code: constant.errorCode,
+        message: "Unable to update!",
+      });
+      return;
+    }
+    res.send({
+      code: constant.successCode,
+      message: "Success!",
+      result: updateUser,
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
       message: err.message,
     });
   }
