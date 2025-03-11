@@ -55,7 +55,7 @@ exports.login = async (req, res) => {
 exports.createSuperAdmin = async (req, res)=>{
     try {
         let superObject = {
-            email: "super@chiptuning,com",
+            email: "super@chiptuning.com",
             password: bcrypt.hashSync("super123", 10),
             role: "admin",
             status: true,
@@ -77,7 +77,8 @@ exports.createSuperAdmin = async (req, res)=>{
         let createData = await USER(superObject).save()
         res.send({
             code: constant.successCode,
-            message: "Super Admin Created Successfully"
+            message: "Super Admin Created Successfully",
+            result:createData
         })
 
 
