@@ -1,9 +1,9 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
 const constant = require("../../config/constant");
 const USER = require("../../models/user/user")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-require("dotenv").config();
 
 
 exports.login = async (req, res) => {
@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
             })
             return
         }
-        let token = jwt.sign({ id: checkEmail._id, status: checkEmail.status, role: checkEmail.role }, process.env.JWTSECRET, { expiresIn: "1d" })
+        let token = jwt.sign({ userId: checkEmail._id, status: checkEmail.status, role: checkEmail.role }, process.env.JWTSECRET, { expiresIn: "1d" })
         res.send({
             code: constant.successCode,
             message: "Login Successfully",

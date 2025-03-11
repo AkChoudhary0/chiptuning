@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const adminController = require('../controllers/admin/adminController.js')
 const loginController = require('../controllers/admin/loginController.js')
+const { verifyToken } = require("../config/auth.js")
 
 /* GET home page. */
 // user api's routes
@@ -11,7 +12,7 @@ router.get("/createSuperAdmin", loginController.createSuperAdmin)
 
 
 
-router.post("/createMake", adminController.createMake)
+router.post("/createMake", [verifyToken], adminController.createMake)
 router.post("/createGeneration", adminController.createGeneration)
 router.post("/createModel", adminController.createModel)
 router.post("/createEngine", adminController.createEngine)
