@@ -4,7 +4,7 @@ const adminController = require("../controllers/admin/adminController.js");
 const loginController = require("../controllers/admin/loginController.js");
 const { verifyToken } = require("../config/auth.js");
 
-/* GET home page. */
+/* GET home page. */ 
 // user api's routes
 
 router.post("/login", loginController.login);
