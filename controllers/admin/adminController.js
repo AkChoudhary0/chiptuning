@@ -1280,14 +1280,17 @@ exports.getUserList = async (req, res) => {
   try {
     let { page = 1, limit = 10 } = req.body;
 
-    let userList = await USER.find({ role: "user" })
+    let userList = await USER.find(
+      { role: "user" },
+      { email: 1, firstName: 1, lastName: 1, status: 1, phone: 1 }
+    )
       .sort({ createdAt: -1 })
       .skip(page * limit - limit)
       .limit(limit);
 
     res.send({
       code: constant.successCode,
-      message: "Success!", 
+      message: "Success!",
       result: userList,
     });
   } catch (err) {
