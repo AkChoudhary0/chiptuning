@@ -1280,7 +1280,7 @@ exports.getUserList = async (req, res) => {
   try {
     let { page = 1, limit = 10 } = req.body;
 
-    let userList = await USER.find({})
+    let userList = await USER.find({ role: "user" })
       .sort({ createdAt: -1 })
       .skip(page * limit - limit)
       .limit(limit);
