@@ -1282,7 +1282,7 @@ exports.getUserList = async (req, res) => {
 
     let userList = await USER.find(
       { role: "user" },
-      { email: 1, firstName: 1, lastName: 1, status: 1, phone: 1 }
+      { email: 1, firstName: 1, lastName: 1, status: 1, phone: 1, credits:1}
     )
       .sort({ createdAt: -1 })
       .skip(page * limit - limit)
