@@ -1289,7 +1289,7 @@ exports.getUserList = async (req, res) => {
       .limit(limit);
 
     res.send({
-      code: constant.successCode,
+      code: constant.successCode,   
       message: "Success!",
       result: userList,
     });
