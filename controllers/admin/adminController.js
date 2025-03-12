@@ -1319,8 +1319,9 @@ exports.updateUserDetail = async (req, res) => {
       res.send({
         code: constant.errorCode,
         message: "Invalid Credits",
-        return;
+      
       });
+      return
     }
 
     if (data.credits && data.credits != "") {
