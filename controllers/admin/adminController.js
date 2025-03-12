@@ -1326,6 +1326,7 @@ exports.updateUserDetail = async (req, res) => {
     // if (data.credits && data.credits != "") {
     //   data.credits = Number(checkUser.credits) + Number(data.credits);
     // }
+    
 
     let updateUser = await USER.findByIdAndUpdate({ _id: userId }, data, {
       new: true,
