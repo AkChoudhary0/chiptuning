@@ -1282,14 +1282,14 @@ exports.getUserList = async (req, res) => {
 
     let userList = await USER.find(
       { role: "user" },
-      { email: 1, firstName: 1, lastName: 1, status: 1, phone: 1, credits:1}
+      { email: 1, firstName: 1, lastName: 1, status: 1, phone: 1, credits: 1 }
     )
       .sort({ createdAt: -1 })
       .skip(page * limit - limit)
       .limit(limit);
 
     res.send({
-      code: constant.successCode,   
+      code: constant.successCode,
       message: "Success!",
       result: userList,
     });
@@ -1313,6 +1313,14 @@ exports.updateUserDetail = async (req, res) => {
         message: "Invalid user id!",
       });
       return;
+    }
+
+    if (data.credits + checkUser.credits < 0) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid Credits",
+        return;
+      });
     }
 
     if (data.credits && data.credits != "") {
