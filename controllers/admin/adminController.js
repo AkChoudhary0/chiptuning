@@ -1287,7 +1287,7 @@ exports.getUserList = async (req, res) => {
 
     res.send({
       code: constant.successCode,
-      message: "Success!",
+      message: "Success!", 
       result: userList,
     });
   } catch (err) {
