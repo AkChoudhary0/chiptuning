@@ -19,8 +19,8 @@ verifyToken = async (req, res, next) => {
                     message: "Auth token verification failed"
                 })
                 return
-            }
-            let checkUser = await USER.findOne({ email: decoded.email })
+            }decoded
+            let checkUser = await USER.findById(decoded.userId)
             if (!checkUser) {
                 res.send({
                     code: constant.tokenErrorCode,
