@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
       });
       return;
     }
-    if (!checkEmail.role != "user") {
+    if (checkEmail.role != "user") {
       res.send({
         code: constant.errorCode,
         message: "Invalid Credentials",
