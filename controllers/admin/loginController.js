@@ -23,6 +23,13 @@ exports.login = async (req, res) => {
       });
       return;
     }
+    if (!checkEmail.role != "user") {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid Credentials",
+      });
+      return;
+    }
     let checkPassword = await bcrypt.compare(
       data.password,
       checkEmail.password
@@ -101,37 +108,35 @@ exports.createSuperAdmin = async (req, res) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    let data = req.body
-    let checkEmail = await USER.findOne({ email: data.email })
+    let data = req.body;
+    let checkEmail = await USER.findOne({ email: data.email });
     if (checkEmail) {
       res.send({
         code: constant.errorCode,
-        message: "Email already exist"
-      })
+        message: "Email already exist",
+      });
       return;
     }
-    let hashPassword = await bcrypt.hashSync(data.password, 10)
-    data.rple = "user"
-    data.password = hashPassword
-    let createData = await USER(data).save()
+    let hashPassword = await bcrypt.hashSync(data.password, 10);
+    data.rple = "user";
+    data.password = hashPassword;
+    let createData = await USER(data).save();
     if (!createData) {
       res.send({
         code: constant.errorCode,
-        message: "User not created"
-      })
+        message: "User not created",
+      });
     } else {
       res.send({
         code: constant.successCode,
         message: "User created successfully",
-        result: createData
-      })
+        result: createData,
+      });
     }
-
   } catch (err) {
     res.send({
       code: constant.errorCode,
       message: err.message,
-
-    })
+    });
   }
-}
+};
