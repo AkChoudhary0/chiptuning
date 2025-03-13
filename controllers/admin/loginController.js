@@ -23,6 +23,64 @@ exports.login = async (req, res) => {
       });
       return;
     }
+   
+    let checkPassword = await bcrypt.compare(
+      data.password,
+      checkEmail.password
+    );
+    if (!checkPassword) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid credentials",
+      });
+      return;
+    }
+    let token = jwt.sign(
+      {
+        userId: checkEmail._id,
+        status: checkEmail.status,
+        role: checkEmail.role,
+      },
+      process.env.JWTSECRET,
+      { expiresIn: "1d" }
+    );
+    res.send({
+      code: constant.successCode,
+      message: "Login Successfully",
+      result: {
+        email: checkEmail.email,
+        token: token,
+        role: checkEmail.role,
+        status: checkEmail.status,
+        firstName: checkEmail.firstName,
+        lastName: checkEmail.lastName,
+      },
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message,
+    });
+  }
+};
+exports.userLogin = async (req, res) => {
+  try {
+    let data = req.body;
+    let checkEmail = await USER.findOne({ email: data.email });
+    if (!checkEmail) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid credentialsv",
+      });
+      return;
+    }
+    if (!checkEmail.status) {
+      res.send({
+        code: constant.errorCode,
+        message: "Your account is blocked",
+      });
+      return;
+    }
     if (checkEmail.role != "user") {
       res.send({
         code: constant.errorCode,
