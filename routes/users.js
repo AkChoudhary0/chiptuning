@@ -4,11 +4,12 @@ var userController = require("../controllers/admin/userController")
 var loginController = require("../controllers/admin/loginController")
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
 router.post("/login", loginController.login);
+router.post("/registerUser", loginController.registerUser);
 
 router.post("/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.get("/getEngineById/:engineId", userController.getEngineById);
