@@ -14,5 +14,6 @@ router.post("/registerUser", loginController.registerUser);
 router.post("/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.get("/getEngineById/:engineId", userController.getEngineById);
 router.post("/getEngineDetail", userController.getEngineDetail);
+router.post("/getECUDetail", userController.getEngineDetail);
 
 module.exports = router;

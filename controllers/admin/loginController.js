@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
       });
       return;
     }
-   
+
     let checkPassword = await bcrypt.compare(
       data.password,
       checkEmail.password
@@ -63,6 +63,7 @@ exports.login = async (req, res) => {
     });
   }
 };
+
 exports.userLogin = async (req, res) => {
   try {
     let data = req.body;

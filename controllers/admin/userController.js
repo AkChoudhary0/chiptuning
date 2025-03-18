@@ -1,11 +1,10 @@
-const mongoose = require('mongoose');
-const ECU = require('../../models/car/ecu')
-const ENGINE  = require("../../models/car/engine")
-const GENERATION  = require("../../models/car/generation")
+const mongoose = require("mongoose");
+const ECU = require("../../models/car/ecu");
+const ENGINE = require("../../models/car/engine");
+const GENERATION = require("../../models/car/generation");
 const MAKE = require("../../models/car/make");
 const MODEL = require("../../models/car/model");
 const constant = require("../../config/constant");
-
 
 //Get Vehicle dropdown
 exports.getVehicleDropDown = async (req, res) => {
@@ -401,6 +400,63 @@ exports.getEngineDetail = async (req, res) => {
   } catch (err) {
     res.send({
       codE: constant.errorCode,
+      message: err.message,
+    });
+  }
+};
+
+//Get ECU Detail
+
+exports.getECUDetail = async (req, res) => {
+  try {
+    let data = req.body;
+    let checkMake = await MAKE.findOne({ _id: data.make });
+    if (!checkMake) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid make is provided!",
+      });
+      return;
+    }
+    let checkModel = await MODEL.findOne({ _id: data.model });
+    if (!checkModel) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid model is provided!",
+      });
+      return;
+    }
+    let checkGeneration = await GENERATION.findOne({ _id: data.generation });
+    if (!checkGeneration) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid generation provided",
+      });
+    }
+
+    let checkEngine = await ENGINE.findOne({ _id: data.engine });
+    if (!checkEngine) {
+      res.send({
+        code: constant.errorCode,
+        message: "Invalid engine provided",
+      });
+    }
+
+    let ecuDetail = await ECU.find({
+      makeId: checkMake._id,
+      modelId: checkModel._id,
+      generationId: checkGeneration._id,
+      engineId: checkEngine._id,
+    });
+
+    res.send({
+      code: constant.successCode,
+      message: "Success!",
+      result: ecuDetail,
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
       message: err.message,
     });
   }
