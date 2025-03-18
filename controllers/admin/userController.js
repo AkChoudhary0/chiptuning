@@ -78,11 +78,6 @@ exports.getVehicleDropDown = async (req, res) => {
               $match: {
                 $and: [
                   matchEngineId,
-                  {
-                    $group: {
-                      _id: "$engineType",
-                    },
-                  },
                   // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
                   // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
                   // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
@@ -470,7 +465,7 @@ exports.getECUDetail = async (req, res) => {
 
 exports.saveFileServiceForm = async (req, res) => {
   try {
-
+    
   } catch (err) {
     res.send({
       code: constant.errorCode,
