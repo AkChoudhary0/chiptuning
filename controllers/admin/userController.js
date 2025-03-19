@@ -290,7 +290,7 @@ exports.getEngineById = async (req, res) => {
     let response = await ENGINE.aggregate(query);
 
     res.send({
-      code: constant.successCode,
+      code: 5555,
       message: "Success!",
       result: response,
     });
