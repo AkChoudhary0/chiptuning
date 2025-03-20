@@ -490,3 +490,33 @@ exports.saveFileServiceForm = async (req, res) => {
     });
   }
 };
+
+exports.getServicerForms = async (req, res) => {
+  try {
+    let data = req.body
+    let getData = await FILESERVICE.aggregate([
+      {
+        $match: {
+          completion_status: req.params.status
+        }
+      }
+    ])
+    if (!getData) {
+      re.send({
+        code: constant.errorCode,
+        message: "No Data Found",
+      })
+    } else {
+      res.send({
+        code: constant.successCode,
+        message: "Success!",
+        result: getData
+      })
+    }
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message,
+    })
+  }
+}
