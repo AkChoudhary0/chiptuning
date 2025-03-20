@@ -58,7 +58,7 @@ const fileService = new Schema(
     },
     completion_status: {
       type: String,
-      default: "Draft",
+      default: "Drafted",
       enum: ["Completed", "Drafted"],
     },
     status: {

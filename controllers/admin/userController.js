@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const ECU = require("../../models/car/ecu");
+const FILESERVICE = require("../../models/user/fileService");
 const ENGINE = require("../../models/car/engine");
 const GENERATION = require("../../models/car/generation");
 const MAKE = require("../../models/car/make");
@@ -465,7 +466,22 @@ exports.getECUDetail = async (req, res) => {
 
 exports.saveFileServiceForm = async (req, res) => {
   try {
-    
+    let data = req.body;
+    let result;
+    if (data.serviceId != "") {
+      result = await FILESERVICE.findOneAndUpdate(
+        { _id: data.serviceId },
+        data,
+        option
+      );
+    } else {
+      result = await FILESERVICE(data).save();
+    }
+    res.send({
+      code: constant.successCode,
+      message: "Success!",
+      result,
+    });
   } catch (err) {
     res.send({
       code: constant.errorCode,

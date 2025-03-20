@@ -11,9 +11,13 @@ router.get('/', function (req, res, next) {
 router.post("/login", loginController.userLogin);
 router.post("/registerUser", loginController.registerUser);
 
+
 router.post("/getVehicleDropDown/:type", userController.getVehicleDropDown);
+router.post("/saveFileServiceForm", userController.saveFileServiceForm);
+
 router.get("/getEngineById/:engineId", userController.getEngineById);
 router.post("/getEngineDetail", userController.getEngineDetail);
 router.post("/getECUDetail", userController.getECUDetail);
+
 
 module.exports = router;
