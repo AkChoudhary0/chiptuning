@@ -470,14 +470,12 @@ exports.saveFileServiceForm = async (req, res) => {
     let result;
     let option = { new: true };
     if (data.serviceId != "" && data.serviceId) {
-      console.log("fdfgdgdfgdfgdf ifffff")
       result = await FILESERVICE.findOneAndUpdate(
         { _id: data.serviceId },
         data,
         option
       );
     } else {
-      console.log("else----------------------")
       result = await FILESERVICE(data).save();
     }
     res.send({
