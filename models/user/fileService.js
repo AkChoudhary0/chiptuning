@@ -15,6 +15,10 @@ const fileService = new Schema(
       type: {},
       default: {},
     },
+    step: {
+      type: Number,
+      default: 1,
+    },
     optionalFile: {
       type: {},
       default: {},
