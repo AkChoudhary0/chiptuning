@@ -468,6 +468,7 @@ exports.saveFileServiceForm = async (req, res) => {
   try {
     let data = req.body;
     let result;
+    let option = { new: true };
     if (data.serviceId != "") {
       result = await FILESERVICE.findOneAndUpdate(
         { _id: data.serviceId },
