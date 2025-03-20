@@ -15,6 +15,8 @@ router.post("/registerUser", loginController.registerUser);
 router.post("/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.post("/saveFileServiceForm", userController.saveFileServiceForm);
 router.post("/getServicerForms/:status", userController.getServicerForms);
+router.post("/deleteServiceForm/:id", userController.deleteServiceForm);
+router.post("/getServicerFormById/:id", userController.getServicerFormById);
 
 router.get("/getEngineById/:engineId", userController.getEngineById);
 router.post("/getEngineDetail", userController.getEngineDetail);
