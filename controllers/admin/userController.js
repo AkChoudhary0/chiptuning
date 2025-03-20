@@ -6,6 +6,7 @@ const GENERATION = require("../../models/car/generation");
 const MAKE = require("../../models/car/make");
 const MODEL = require("../../models/car/model");
 const constant = require("../../config/constant");
+const { response } = require("express");
 
 //Get Vehicle dropdown
 exports.getVehicleDropDown = async (req, res) => {
@@ -497,7 +498,10 @@ exports.getServicerForms = async (req, res) => {
     let getData = await FILESERVICE.aggregate([
       {
         $match: {
-          completion_status: req.params.status
+          $and: [
+            { completion_status: req.params.status },
+            { isDeleted: false }
+          ]
         }
       }
     ])
@@ -517,6 +521,59 @@ exports.getServicerForms = async (req, res) => {
     res.send({
       code: constant.errorCode,
       message: err.message,
+    })
+  }
+}
+
+exports.deleteServiceForm = async (req, res) => {
+  try {
+    let checkId = await FILESERVICE.findOne({ _id: req.params.id, isDeleted: false })
+    if (!checkId) {
+      response.send({
+        code: constant.errorCode,
+        message: "Invalid ID"
+      })
+      return
+    }
+    let deleteForm = await FILESERVICE.findOneAndUpdate({ _id: req.params.id }, { isDeleted: true }, { new: true })
+    if (!deleteForm) {
+      res.send({
+        code: constant.errorCode,
+        message: "Unable to delete the data"
+      })
+    } else {
+      res.send({
+        code: constant.successCode,
+        messsage: "Successfully deleted "
+      })
+    }
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message
+    })
+  }
+}
+
+exports.getServicerFormById = async (req, res) => {
+  try {
+    let getData = await FILESERVICE.findOne({ _id: req.params.id })
+    if (!getData) {
+      res.send({
+        code: constants.errorCode,
+        message: "Unable to find the data"
+      })
+      return
+    }
+    res.send({
+      code: constants.successCode,
+      message: "Success",
+      result: getData
+    })
+  } catch (err) {
+    res.send({
+      code: constants.errorCode,
+      message: err.message
     })
   }
 }
