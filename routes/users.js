@@ -12,7 +12,6 @@ router.get("/", function (req, res, next) {
 router.post("/login", loginController.userLogin);
 router.post("/registerUser", loginController.registerUser);
 router.post("/getEngine/:engineType", adminController.getEngine);
-router.get("/getEngineById/:engineId", adminController.getEngineById);
 
 router.post("/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.post("/saveFileServiceForm", userController.saveFileServiceForm);
