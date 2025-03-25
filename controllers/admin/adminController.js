@@ -794,6 +794,12 @@ exports.getVehicleDropDown = async (req, res) => {
                 ],
               },
             },
+            {
+              $group: {
+                _id: "$engineType",
+                engines: { $push: "$$ROOT" }
+              }
+            }
           ],
         },
       },
@@ -885,39 +891,40 @@ exports.getVehicleDropDown = async (req, res) => {
               in: "$$generation",
             },
           },
-          engines: {
-            $map: {
-              input: {
-                $filter: {
-                  input: "$engines",
-                  as: "eng",
-                  cond: {
-                    $and: [
-                      { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
-                      { $ne: [data.modelId, ""] },
-                      { $ne: [data.makeId, ""] },
-                      //   { $ne: [data.generationId, ""] },
-                      // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
-                      {
-                        $or: [
-                          { $in: ["$$eng.modelId", "$models._id"] }, // If engines exist, match modelId
-                          { $eq: [{ $size: "$models" }, 0] }, // If engines array is empty, allow all models
-                        ],
-                      },
-                      {
-                        $or: [
-                          { $in: ["$$eng.generationId", "$generations._id"] },
-                          { $eq: [{ $size: "$generations" }, 0] },
-                        ],
-                      },
-                    ],
-                  },
-                },
-              },
-              as: "engine", // Alias for each pricebook
-              in: "$$engine",
-            },
-          },
+          // engines: {
+          //   $map: {
+          //     input: {
+          //       $filter: {
+          //         input: "$engines",
+          //         as: "eng",
+          //         cond: {
+          //           $and: [
+          //             { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
+          //             { $ne: [data.modelId, ""] },
+          //             { $ne: [data.makeId, ""] },
+          //             //   { $ne: [data.generationId, ""] },
+          //             // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
+          //             {
+          //               $or: [
+          //                 { $in: ["$$eng.modelId", "$models._id"] }, // If engines exist, match modelId
+          //                 { $eq: [{ $size: "$models" }, 0] }, // If engines array is empty, allow all models
+          //               ],
+          //             },
+          //             {
+          //               $or: [
+          //                 { $in: ["$$eng.generationId", "$generations._id"] },
+          //                 { $eq: [{ $size: "$generations" }, 0] },
+          //               ],
+          //             },
+          //           ],
+          //         },
+          //       },
+          //     },
+          //     as: "engine", // Alias for each pricebook
+          //     in: "$$engine",
+          //   },
+          // },
+          engines:"$engines"
         },
       },
     ];
