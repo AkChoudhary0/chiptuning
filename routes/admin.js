@@ -4,15 +4,15 @@ const adminController = require("../controllers/admin/adminController.js");
 const loginController = require("../controllers/admin/loginController.js");
 const { verifyToken } = require("../config/auth.js");
 
-/* GET home page. */ 
+/* GET home page. */
 // user api's routes
 
 router.post("/login", loginController.login);
 router.get("/createSuperAdmin", loginController.createSuperAdmin);
-router.get("/", (req,res) => {
- res.send({
-    message:"hello"
- })
+router.get("/", (req, res) => {
+  res.send({
+    message: "hello",
+  });
 });
 
 router.post("/createMake", [verifyToken], adminController.createMake);

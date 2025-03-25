@@ -1,73 +1,81 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const mongoose = require("mongoose")
-const Schema = mongoose.Schema
-
-const engines = new Schema({
+const engines = new Schema(
+  {
     engine: {
-        type: String,
-        default: null
+      type: String,
+      default: null,
     },
     engineType: {
-        type: String,
-        default: null
+      type: String,
+      default: null,
     },
     generationId: {
-        type: mongoose.Schema.Types.ObjectId, ref: "generations",
-        default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "generations",
+      default: null,
     },
     modelId: {
-        type: mongoose.Schema.Types.ObjectId, ref: "models",
-        default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "models",
+      default: null,
     },
     makeId: {
-        type: mongoose.Schema.Types.ObjectId, ref: "makes",
-        default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "makes",
+      default: null,
     },
     engineMethods: {
-        type: [],
-        default: []
+      type: [],
+      default: [],
     },
     specifications: {
-        type: {},
-        default: {}
+      type: {},
+      default: {},
     },
-    vehicle_type:{
-        type: String,
-        default: ''
+    vehicle_type: {
+      type: String,
+      default: "",
     },
     engineNumber: {
-        type: String,
-        default: ''
+      type: String,
+      default: "",
     },
     hardware_number: {
-        type: String,
-        default: ''
+      type: String,
+      default: "",
     },
     software_number: {
-        type: String,
-        default: ''
+      type: String,
+      default: "",
     },
     ecu: {
-        type: String,
-        default: ''
-    },    
+      type: String,
+      default: "",
+    },
     ecu_type: {
-        type: String,
-        default: ''
+      type: String,
+      default: "",
+    },
+    price: {
+      type: Number,
     },
     size: {
-        type: String,
-        default: ''
+      type: String,
+      default: "",
     },
-    
+
     status: {
-        type: Boolean,
-        default: true
+      type: Boolean,
+      default: true,
     },
     isDeleted: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
-}, { timestamps: true })
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("engines", engines)
+module.exports = mongoose.model("engines", engines);
