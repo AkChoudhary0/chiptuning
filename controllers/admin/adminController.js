@@ -720,9 +720,7 @@ exports.getVehicleDropDown = async (req, res) => {
     let data = req.body;
     let matchMakeId = {};
     let matchModelId = {};
-    req.params.type = "vehicle_detail"
-
-    console.log("dfsfsdsdfdsfdssdfdsddfs");
+    // req.params.type = "vehicle_detail"
     let matchGenerationId = {};
     let matchEngineId = {};
     if (data.makeId != "") {
@@ -756,6 +754,7 @@ exports.getVehicleDropDown = async (req, res) => {
               $match: {
                 $and: [
                   matchModelId,
+                  { vehicle_type: req.params.type }
                   // { 'makeId': new mongoose.Types.ObjectId(data.makeId) }
                 ],
               },
@@ -772,7 +771,8 @@ exports.getVehicleDropDown = async (req, res) => {
           pipeline: [
             {
               $match: {
-                $and: [matchGenerationId],
+                $and: [matchGenerationId,{ vehicle_type: req.params.type }],
+                
               },
             },
           ],
@@ -789,6 +789,7 @@ exports.getVehicleDropDown = async (req, res) => {
               $match: {
                 $and: [
                   matchEngineId,
+                  { vehicle_type: req.params.type }
                   // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
                   // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
                   // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
@@ -945,13 +946,13 @@ exports.getVehicleDropDown = async (req, res) => {
 };
 
 //Get Vehicle dropdown
-exports.getVehicleDropDown1 = async (req, res) => {
+exports.getDropDownForOri = async (req, res) => {
   try {
     let data = req.body;
     let matchMakeId = {};
     let matchModelId = {};
-    req.params.type = "original_file"
-    console.log("dfsfsdsdfdsfdssdfdsddfs");
+    // req.params.type = "original_file"
+
     let matchGenerationId = {};
     let matchEngineId = {};
     if (data.makeId != "") {
@@ -971,7 +972,7 @@ exports.getVehicleDropDown1 = async (req, res) => {
     let pipeline = [
       {
         $match: {
-          $and: [matchMakeId, { vehicle_type: req.params.type }],
+          $and: [matchMakeId, { vehicle_type: "original_file" }],
         },
       },
       {
@@ -1018,41 +1019,14 @@ exports.getVehicleDropDown1 = async (req, res) => {
               $match: {
                 $and: [
                   matchEngineId,
-                  // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
-                  // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
-                  // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
+           
                 ],
               },
             },
-            // {
-            //   $group: {
-            //     _id: "$engineType",
-            //     engines: { $push: "$$ROOT" }
-            //   }
-            // }
+        
           ],
         },
       },
-      //   {
-      //     $lookup: {
-      //       from: "engines",
-      //       localField: "models._id",
-      //       foreignField: "modelId",
-      //       as: "enginesForModel",
-      //       pipeline: [
-      //         {
-      //           $match: {
-      //             $and: [
-      //               matchEngineId,
-      //               // { 'makeId': new mongoose.Types.ObjectId(data.makeId) },
-      //               // { 'modelId': new mongoose.Types.ObjectId(data.modelId) },
-      //               // { 'generationId': new mongoose.Types.ObjectId(data.generationId) },
-      //             ],
-      //           },
-      //         },
-      //       ],
-      //     },
-      //   },
       {
         $project: {
           make: 1,

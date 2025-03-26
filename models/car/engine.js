@@ -30,10 +30,10 @@ const engines = new Schema(
       type: [],
       default: [],
     },
-    specifications: {
-      type: {},
-      default: {},
-    },
+      specifications: {
+        type: {},
+        default: {},
+      },
     vehicle_type: {
       type: String,
       default: "",
