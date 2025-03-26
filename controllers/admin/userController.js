@@ -560,19 +560,19 @@ exports.getServicerFormById = async (req, res) => {
     let getData = await FILESERVICE.findOne({ _id: req.params.id })
     if (!getData) {
       res.send({
-        code: constant.errorCode,
+        code: constants.errorCode,
         message: "Unable to find the data"
       })
       return
     }
     res.send({
-      code: constant.successCode,
+      code: constants.successCode,
       message: "Success",
       result: getData
     })
   } catch (err) {
     res.send({
-      code: constant.errorCode,
+      code: constants.errorCode,
       message: err.message
     })
   }
