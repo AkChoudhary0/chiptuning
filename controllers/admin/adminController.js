@@ -993,33 +993,18 @@ exports.getDropDownForOri = async (req, res) => {
           ],
         },
       },
-      {
-        $lookup: {
-          from: "generations",
-          localField: "models._id",
-          foreignField: "modelId",
-          as: "generations",
-          pipeline: [
-            {
-              $match: {
-                $and: [matchGenerationId],
-              },
-            },
-          ],
-        },
-      },
+  
       {
         $lookup: {
           from: "engines",
-          localField: "generations._id",
-          foreignField: "generationId",
+          localField: "models._id",
+          foreignField: "modelId",
           as: "engines",
           pipeline: [
             {
               $match: {
                 $and: [
-                  matchEngineId,
-           
+                  matchEngineId,           
                 ],
               },
             },
@@ -1040,12 +1025,6 @@ exports.getDropDownForOri = async (req, res) => {
                     $and: [
                       { $eq: ["$$modelData.makeId", "$_id"] },
                       { $ne: [data.makeId, ""] },
-                      {
-                        $or: [
-                          { $in: ["$$modelData._id", "$generations.modelId"] }, // If engines exist, match modelId
-                          { $eq: [{ $size: "$generations" }, 0] }, // If engines array is empty, allow all models
-                        ],
-                      },
                       //   {
                       //     $or: [
                       //     //  { $in: ["$$modelData._id", "$engines.modelId"] }, // If engines exist, match modelId
@@ -1062,74 +1041,9 @@ exports.getDropDownForOri = async (req, res) => {
                 modelId: "$$models._id",
               },
             },
-          },
-          generations:"$generations",
-          // generations: {
-          //   $map: {
-          //     input: {
-          //       $filter: {
-          //         input: "$generations",
-          //         as: "gen",
-          //         cond: {
-          //           $and: [
-          //             { $eq: ["$$gen.makeId", "$_id"] }, // Make sure generation belongs to the current make
-          //             { $ne: [data.modelId, ""] },
-          //             { $ne: [data.makeId, ""] },
-
-          //             {
-          //               $or: [
-          //                 { $in: ["$$gen.modelId", "$models._id"] }, // If engines exist, match modelId
-          //                 { $eq: [{ $size: "$models" }, 0] }, // If engines array is empty, allow all models
-          //               ],
-          //             },
-          //             {
-          //               $or: [
-          //                 { $in: ["$$gen._id", "$engines.generationId"] }, // If engines exist, match modelId
-          //                 { $eq: [{ $size: "$engines" }, 0] }, // If engines array is empty, allow all models
-          //               ],
-          //             },
-          //           ],
-          //         },
-          //       },
-          //     },
-          //     as: "generation", // Alias for each pricebook
-          //     in: "$$generation",
-          //   },
-          // },
-          // engines: {
-          //   $map: {
-          //     input: {
-          //       $filter: {
-          //         input: "$engines",
-          //         as: "eng",
-          //         cond: {
-          //           $and: [
-          //             { $eq: ["$$eng.makeId", "$_id"] }, // Make sure generation belongs to the current make
-          //             { $ne: [data.modelId, ""] },
-          //             { $ne: [data.makeId, ""] },
-          //             //   { $ne: [data.generationId, ""] },
-          //             // { $in: ["$$eng.modelId", "$models._id"] }, // Check if generation's modelId is in models array
-          //             {
-          //               $or: [
-          //                 { $in: ["$$eng.modelId", "$models._id"] }, // If engines exist, match modelId
-          //                 { $eq: [{ $size: "$models" }, 0] }, // If engines array is empty, allow all models
-          //               ],
-          //             },
-          //             {
-          //               $or: [
-          //                 { $in: ["$$eng.generationId", "$generations._id"] },
-          //                 { $eq: [{ $size: "$generations" }, 0] },
-          //               ],
-          //             },
-          //           ],
-          //         },
-          //       },
-          //     },
-          //     as: "engine", // Alias for each pricebook
-          //     in: "$$engine",
-          //   },
-          // },
-          engines:"$engines"
+          },        
+        
+          engines:1
         },
       },
     ];
