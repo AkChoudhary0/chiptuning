@@ -720,6 +720,7 @@ exports.getVehicleDropDown = async (req, res) => {
     let data = req.body;
     let matchMakeId = {};
     let matchModelId = {};
+    req.params.type = "vehicle_detail"
 
     console.log("dfsfsdsdfdsfdssdfdsddfs");
     let matchGenerationId = {};
@@ -949,7 +950,7 @@ exports.getVehicleDropDown1 = async (req, res) => {
     let data = req.body;
     let matchMakeId = {};
     let matchModelId = {};
-
+    req.params.type = "original_file"
     console.log("dfsfsdsdfdsfdssdfdsddfs");
     let matchGenerationId = {};
     let matchEngineId = {};
