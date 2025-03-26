@@ -35,7 +35,7 @@ router.post("/getECU/", adminController.getECU);
 
 router.post("/addECU", adminController.addECU);
 router.post("/getMakes/:makeType", adminController.getMakes);
-router.post("/getVehicleDropDown/type", adminController.getVehicleDropDown);
+router.post("/getVehicleDropDown/:type", adminController.getVehicleDropDown);
 router.get("/getDropDownForOri", adminController.getDropDownForOri);
 // router.post("/getVehicleDropDown/original_file", adminController.getVehicleDropDown1);
 router.delete("/deleteMakeById/:makeId", adminController.deleteMakeById);
