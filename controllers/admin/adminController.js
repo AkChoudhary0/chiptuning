@@ -945,7 +945,7 @@ exports.getVehicleDropDown = async (req, res) => {
   }
 };
 
-//Get Vehicle dropdown
+//Get Vehicle dropdown for ori
 exports.getDropDownForOri = async (req, res) => {
   try {
     let data = req.body;
@@ -1060,8 +1060,8 @@ exports.getDropDownForOri = async (req, res) => {
     });
   }
 };
-//Add ECU
 
+//Add ECU
 exports.addECU = async (req, res) => {
   try {
     let data = req.body;

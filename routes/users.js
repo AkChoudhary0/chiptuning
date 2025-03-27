@@ -16,6 +16,8 @@ router.post("/getEngine/:engineType", adminController.getEngine);
 router.post("/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.post("/saveFileServiceForm", userController.saveFileServiceForm);
 router.post("/getServicerForms/:status", userController.getServicerForms);
+router.post("/getDropDownForOri", adminController.getDropDownForOri);
+
 router.delete("/deleteServiceForm/:id", userController.deleteServiceForm);
 router.get("/getServicerFormById/:id", userController.getServicerFormById);
 
