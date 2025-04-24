@@ -6,9 +6,52 @@ const ENGINE = require("../../models/car/engine");
 const constant = require("../../config/constant");
 const engine = require("../../models/car/engine");
 const USER = require("../../models/user/user");
+const fs = require("fs");
+const multer = require("multer");
 
+const { S3Client } = require("@aws-sdk/client-s3");
+const { Upload } = require("@aws-sdk/lib-storage");
+const multerS3 = require("multer-s3");
+const aws = require("aws-sdk");
+const path = require("path");
 const ECU = require("../../models/car/ecu");
 const { patch } = require("../../routes/admin");
+
+aws.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+});
+
+const S3Bucket = new aws.S3();
+// s3 bucket connections
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+  },
+});
+const StorageP = multerS3({
+  s3: s3,
+  bucket: process.env.AWS_BUCKET_NAME,
+  metadata: (req, file, cb) => {
+    cb(null, { fieldName: file.fieldname });
+  },
+  key: (req, file, cb) => {
+    const fileName =
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname);
+    const fullPath = `${fileName}`;
+    cb(null, fullPath);
+  },
+});
+   
+var imageUpload = multer({
+  storage: StorageP,
+  limits: {
+    fileSize: 500 * 1024 * 1024, // 500 MB limit
+  },
+}).single("file");
+
 //Create Make
 
 exports.createMake = async (req, res) => {
@@ -35,12 +78,15 @@ exports.createMake = async (req, res) => {
       });
       return;
     }
+    //
     //save data in to db
+    data.isShow = data.isShow;
+    data.imageUpload = data.image
     let saveData = await MAKE(data).save();
     res.send({
       code: constant.successCode,
       message: "Success",
-      result: saveData,
+      result: saveData
     });
   } catch (err) {
     res.send({
@@ -50,6 +96,38 @@ exports.createMake = async (req, res) => {
   } 
 };
 
+//Get Makes and Models
+exports.getMakesWithModels = async(req,res)=>{
+  try{
+    let query = [
+      {
+        $match:{
+          isShow:true
+        }
+      },
+      {
+        $lookup:{
+          from:"models",
+          localField:"_id",
+          foreignField:"makeId",
+          as:"models"
+        }
+      }
+    ]
+    const response = await MAKE.aggregate(query)
+    res.send({
+      code:constant.successCode,
+      message:"Success!",
+      result:response
+    })
+  }
+  catch(err){
+    res.send({
+      code:constant.errorCode,
+      message:err.message
+    })
+  }
+}
 //Create Model
 exports.createModel = async (req, res) => {
   try {
@@ -1473,5 +1551,31 @@ exports.updateUserDetail = async (req, res) => {
       code: constant.errorCode,
       message: err.message,
     });
+  }
+};
+
+//Upload image in S3 Bucket
+
+//upload comment image data in claim
+exports.uploadImage = async (req, res, next) => {
+  try {
+    imageUpload(req, res, async (err) => {
+      let file = req.file;
+      res.send({
+        code: constant.successCode,
+        message: "Success!",
+        messageFile: {
+          fileName: file.key,
+          originalName: file.originalname,
+          size: file.size,
+        },
+      });
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message,
+    });
+    return;
   }
 };
