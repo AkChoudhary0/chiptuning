@@ -12,6 +12,7 @@ router.get("/", function (req, res, next) {
 router.post("/login", loginController.userLogin);
 router.post("/registerUser", loginController.registerUser);
 router.post("/getEngine/:engineType", adminController.getEngine);
+router.post("/getMakesWithModels", adminController.getMakesWithModels);
 
 router.post("/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.post("/saveFileServiceForm", userController.saveFileServiceForm);
