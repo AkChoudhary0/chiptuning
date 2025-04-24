@@ -47,7 +47,7 @@ exports.createMake = async (req, res) => {
       code: constant.errorCode,
       message: err.message,
     });
-  }
+  } 
 };
 
 //Create Model
