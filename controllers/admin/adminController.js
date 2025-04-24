@@ -81,7 +81,7 @@ exports.createMake = async (req, res) => {
     //
     //save data in to db
     data.isShow = data.isShow;
-    data.imageUpload = data.image
+    data.image = data.image
     let saveData = await MAKE(data).save();
     res.send({
       code: constant.successCode,

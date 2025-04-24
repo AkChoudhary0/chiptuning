@@ -10,6 +10,12 @@ const makes = new Schema({
         type: String,
         default: ''
     },
+    isShow:{
+        type:Boolean
+    },
+    image:{
+        type:{}
+    },
     status: {
         type: Boolean,
         default: true
