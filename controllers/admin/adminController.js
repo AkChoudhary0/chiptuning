@@ -80,9 +80,10 @@ exports.createMake = async (req, res) => {
     }
     //
     //save data in to db
-    data.isShow = data.isShow;
-    data.image = data.image
+    // data.isShow = data.isShow;
+    // data.image = data.image
     let saveData = await MAKE(data).save();
+    console.log("data saved--------",saveData,"data=======",data)
     res.send({
       code: constant.successCode,
       message: "Success",
