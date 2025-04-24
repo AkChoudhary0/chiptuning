@@ -17,18 +17,14 @@ router.get("/", (req, res) => {
 
 router.post("/createMake", [verifyToken],adminController.createMake);
 router.post("/uploadImage", [verifyToken], adminController.uploadImage);
-router.get("/getMakesWithModels",adminController.getMakesWithModels);
+router.post("/getMakesWithModels", [verifyToken],adminController.getMakesWithModels);
 router.post("/createGeneration", adminController.createGeneration);
 router.post("/createModel", adminController.createModel);
 router.post("/createEngine", adminController.createEngine);
 router.post("/getGeneration/:generationType", adminController.getGeneration);
 router.post("/getModels/:modelType", adminController.getModels);
 router.post("/listUsers", [verifyToken], adminController.getUserList);
-router.put(
-  "/updateUser/:userId",
-  [verifyToken],
-  adminController.updateUserDetail
-);
+router.put("/updateUser/:userId",[verifyToken],adminController.updateUserDetail);
 router.post("/getEngine/:engineType", adminController.getEngine);
 router.post("/getEngineDetail", adminController.getEngineDetail);
 router.get("/getModelByMakeId/:makeId", adminController.getModelByMakeId);

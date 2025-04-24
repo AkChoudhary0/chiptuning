@@ -14,7 +14,7 @@ const makes = new Schema({
         type:Boolean
     },
     image:{
-        type:{}
+        type:Object
     },
     status: {
         type: Boolean,
