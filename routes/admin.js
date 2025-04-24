@@ -17,7 +17,7 @@ router.get("/", (req, res) => {
 
 router.post("/createMake", [verifyToken],adminController.createMake);
 router.post("/uploadImage", [verifyToken], adminController.uploadImage);
- router.get("/getMakesWithModels", [verifyToken],adminController.getMakesWithModels);
+router.post("/getMakesWithModels", [verifyToken],adminController.getMakesWithModels);
 router.post("/createGeneration", adminController.createGeneration);
 router.post("/createModel", adminController.createModel);
 router.post("/createEngine", adminController.createEngine);
