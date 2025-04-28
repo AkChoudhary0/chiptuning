@@ -284,8 +284,8 @@ exports.getVehicleDropDown = async (req, res) => {
           pipeline: [
             {
               $match: {
-                $and: [matchGenerationId,{ vehicle_type: req.params.type }],
-                
+                $and: [matchGenerationId, { vehicle_type: req.params.type }],
+
               },
             },
           ],
@@ -374,7 +374,7 @@ exports.getVehicleDropDown = async (req, res) => {
               },
             },
           },
-          generations:"$generations",
+          generations: "$generations",
           // generations: {
           //   $map: {
           //     input: {
@@ -440,7 +440,7 @@ exports.getVehicleDropDown = async (req, res) => {
           //     in: "$$engine",
           //   },
           // },
-          engines:"$engines"
+          engines: "$engines"
         },
       },
     ];
@@ -808,23 +808,33 @@ exports.getServicerFormById = async (req, res) => {
   }
 }
 
-exports.getGenerationDropDown = async(req,res)=>{
-  try{
+exports.getGenerationDropDown = async (req, res) => {
+  try {
     let data = req.body
     let getGenerations = await GENERATION.find({
-      makeId:data.makeId,
-      modelId:data.modelId,
-      status:true
+      // makeId:data.makeId,
+      modelId: data.modelId,
+      status: true
     })
+    let engines = []
+    if (data.generationId != "") {
+      let getEngines = await ENGINE.find({
+        generationId: data.generationId
+      })
+      engines = getEngines
+    }
     res.send({
-      code:constant.successCode,
-      message:"Success",
-      result:getGenerations
+      code: constant.successCode,
+      message: "Success",
+      result: {
+        generations: getGenerations,
+        engine: engines
+      }
     })
-  }catch(err){
+  } catch (err) {
     res.send({
-      code:constant.errorCode,
-      message:err.message
+      code: constant.errorCode,
+      message: err.message
     })
   }
 }
