@@ -808,4 +808,23 @@ exports.getServicerFormById = async (req, res) => {
   }
 }
 
-
+exports.getGenerationDropDown = async(req,res)=>{
+  try{
+    let data = req.body
+    let getGenerations = await GENERATION.find({
+      makeId:data.makeId,
+      modelId:data.modelId,
+      status:true
+    })
+    res.send({
+      code:constant.successCode,
+      message:"Success",
+      result:getGenerations
+    })
+  }catch(err){
+    res.send({
+      code:constant.errorCode,
+      message:err.message
+    })
+  }
+}

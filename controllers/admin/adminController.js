@@ -44,7 +44,7 @@ const StorageP = multerS3({
     cb(null, fullPath);
   },
 });
-   
+
 var imageUpload = multer({
   storage: StorageP,
   limits: {
@@ -83,7 +83,7 @@ exports.createMake = async (req, res) => {
     // data.isShow = data.isShow;
     // data.image = data.image
     let saveData = await MAKE(data).save();
-    console.log("data saved--------",saveData,"data=======",data)
+    console.log("data saved--------", saveData, "data=======", data)
     res.send({
       code: constant.successCode,
       message: "Success",
@@ -94,38 +94,38 @@ exports.createMake = async (req, res) => {
       code: constant.errorCode,
       message: err.message,
     });
-  } 
+  }
 };
 
 //Get Makes and Models
-exports.getMakesWithModels = async(req,res)=>{
-  try{
+exports.getMakesWithModels = async (req, res) => {
+  try {
     let query = [
       {
-        $match:{
-          isShow:true
+        $match: {
+          isShow: true
         }
       },
       {
-        $lookup:{
-          from:"models",
-          localField:"_id",
-          foreignField:"makeId",
-          as:"models"
+        $lookup: {
+          from: "models",
+          localField: "_id",
+          foreignField: "makeId",
+          as: "models"
         }
       }
     ]
     const response = await MAKE.aggregate(query)
     res.send({
-      code:constant.successCode,
-      message:"Success!",
-      result:response
+      code: constant.successCode,
+      message: "Success!",
+      result: response
     })
   }
-  catch(err){
+  catch (err) {
     res.send({
-      code:constant.errorCode,
-      message:err.message
+      code: constant.errorCode,
+      message: err.message
     })
   }
 }
@@ -850,8 +850,8 @@ exports.getVehicleDropDown = async (req, res) => {
           pipeline: [
             {
               $match: {
-                $and: [matchGenerationId,{ vehicle_type: req.params.type }],
-                
+                $and: [matchGenerationId, { vehicle_type: req.params.type }],
+
               },
             },
           ],
@@ -940,7 +940,7 @@ exports.getVehicleDropDown = async (req, res) => {
               },
             },
           },
-          generations:"$generations",
+          generations: "$generations",
           // generations: {
           //   $map: {
           //     input: {
@@ -1006,7 +1006,7 @@ exports.getVehicleDropDown = async (req, res) => {
           //     in: "$$engine",
           //   },
           // },
-          engines:"$engines"
+          engines: "$engines"
         },
       },
     ];
@@ -1072,7 +1072,7 @@ exports.getDropDownForOri = async (req, res) => {
           ],
         },
       },
-  
+
       {
         $lookup: {
           from: "engines",
@@ -1083,11 +1083,11 @@ exports.getDropDownForOri = async (req, res) => {
             {
               $match: {
                 $and: [
-                  matchEngineId,           
+                  matchEngineId,
                 ],
               },
             },
-        
+
           ],
         },
       },
@@ -1120,9 +1120,9 @@ exports.getDropDownForOri = async (req, res) => {
                 modelId: "$$models._id",
               },
             },
-          },        
-        
-          engines:1
+          },
+
+          engines: 1
         },
       },
     ];
@@ -1530,7 +1530,7 @@ exports.updateUserDetail = async (req, res) => {
     // if (data.credits && data.credits != "") {
     //   data.credits = Number(checkUser.credits) + Number(data.credits);
     // }
-    
+
 
     let updateUser = await USER.findByIdAndUpdate({ _id: userId }, data, {
       new: true,
@@ -1580,3 +1580,39 @@ exports.uploadImage = async (req, res, next) => {
     return;
   }
 };
+
+
+// exports.getMakeWithId = async (req, res) => {
+//   try {
+//     let getMake = await 
+//   } catch (err) {
+//     res.send({
+//       code: constant.errorCode,
+//       message: err.message
+//     })
+//   }
+// }
+
+exports.updateMakeShow = async (req, res) => {
+  try {
+    let data = req.body
+    let updateData = await MAKE.findOneAndUpdate({ _id: data._id }, data, { new: true })
+    if(!updateData){
+      res.send({
+        code:constant.errorCode,
+        message:"Invalid ID"
+      })
+    }else{
+      res.send({
+        code:constant.successCode,
+        message:"Success",
+        result:updateData
+      })
+    }
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message
+    })
+  }
+}

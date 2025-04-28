@@ -25,5 +25,6 @@ router.get("/getServicerFormById/:id", userController.getServicerFormById);
 router.get("/getEngineById/:engineId", userController.getEngineById);
 router.post("/getEngineDetail", userController.getEngineDetail);
 router.post("/getECUDetail", userController.getECUDetail);
+router.post("/getGenerationDropDown", userController.getGenerationDropDown);
 
 module.exports = router;
