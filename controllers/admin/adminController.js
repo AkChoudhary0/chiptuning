@@ -1565,11 +1565,7 @@ exports.uploadImage = async (req, res, next) => {
       res.send({
         code: constant.successCode,
         message: "Success!",
-        messageFile: {
-          fileName: file.key,
-          originalName: file.originalname,
-          size: file.size,
-        },
+        messageFile: file,
       });
     });
   } catch (err) {
