@@ -24,6 +24,7 @@ router.post("/createEngine", adminController.createEngine);
 router.post("/getGeneration/:generationType", adminController.getGeneration);
 router.post("/getModels/:modelType", adminController.getModels);
 router.post("/listUsers", [verifyToken], adminController.getUserList);
+router.put("/updateMakeShow", [verifyToken], adminController.updateMakeShow);
 router.put("/updateUser/:userId",[verifyToken],adminController.updateUserDetail);
 router.post("/getEngine/:engineType", adminController.getEngine);
 router.post("/getEngineDetail", adminController.getEngineDetail);
