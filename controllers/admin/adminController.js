@@ -498,12 +498,13 @@ exports.deleteGenerationById = async (req, res) => {
 exports.deleteEngineById = async (req, res) => {
   try {
     let data = req.body;
-    let checkEngine = await GENERATION.findOne({ _id: req.params.engineId });
+    let checkEngine = await ENGINE.findOne({ _id: req.params.engineId });
     if (!checkEngine) {
       res.send({
         code: constant.errorCode,
         message: "Invalid engine ID!",
       });
+      return
     }
 
     //Update Generation related to makes
