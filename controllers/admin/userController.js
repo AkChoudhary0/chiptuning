@@ -253,7 +253,7 @@ exports.getVehicleDropDown = async (req, res) => {
     let pipeline = [
       {
         $match: {
-          $and: [matchMakeId, { vehicle_type: req.params.type }],
+          $and: [matchMakeId, { vehicle_type: req.params.type },{isDeleted:false}],
         },
       },
       {

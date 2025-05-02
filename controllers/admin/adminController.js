@@ -103,7 +103,15 @@ exports.getMakesWithModels = async (req, res) => {
     let query = [
       {
         $match: {
-          isShow: true
+          $and:[
+            {
+              isDeleted:false,
+            },
+            {
+              isShow: true
+            }
+          ]
+          
         }
       },
       {
@@ -820,7 +828,7 @@ exports.getVehicleDropDown = async (req, res) => {
     let pipeline = [
       {
         $match: {
-          $and: [matchMakeId, { vehicle_type: req.params.type }],
+          $and: [matchMakeId, { vehicle_type: req.params.type },{isDeleted:false}],
         },
       },
       {
@@ -834,7 +842,8 @@ exports.getVehicleDropDown = async (req, res) => {
               $match: {
                 $and: [
                   matchModelId,
-                  { vehicle_type: req.params.type }
+                  { vehicle_type: req.params.type },
+                  
                   // { 'makeId': new mongoose.Types.ObjectId(data.makeId) }
                 ],
               },
