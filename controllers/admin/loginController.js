@@ -12,7 +12,7 @@ exports.login = async (req, res) => {
     if (!checkEmail) {
       res.send({
         code: constant.errorCode,
-        message: "Invalid credentialsv",
+        message: "Invalid credentials",
       });
       return;
     }
@@ -71,7 +71,7 @@ exports.userLogin = async (req, res) => {
     if (!checkEmail) {
       res.send({
         code: constant.errorCode,
-        message: "Invalid credentialsv",
+        message: "Invalid credentials",
       });
       return;
     }
