@@ -43,5 +43,7 @@ verifyToken = async (req, res, next) => {
         })
     }
 }
-
-module.exports = { verifyToken: verifyToken }
+const authJwt = {
+    verifyToken: verifyToken,
+  };
+  module.exports = authJwt
