@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose')
 
-const dbUrl = "mongodb+srv://anil:PSiv5ry8RhScc5b0@cluster0.s4yb1xe.mongodb.net/chiptuning"
+const dbUrl = "mongodb+srv://anil:PSiv5ry8RhScc5b0@cluster0.s4yb1xe.mongodb.net/chiptuning?retryWrites=true&w=majority&appName=Cluster0"
 
 
 const connection = {
