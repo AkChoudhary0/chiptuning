@@ -112,7 +112,7 @@ exports.userLogin = async (req, res) => {
     res.send({
       code: constant.successCode,
       message: "Login Successfully",
-      result: {
+      result: { 
         email: checkEmail.email,
         token: token,
         role: checkEmail.role,
