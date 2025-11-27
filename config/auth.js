@@ -6,7 +6,7 @@ const constant = require("./constant")
 
 verifyToken = async (req, res, next) => {
     let token = req.headers["x-access-token"]
-    if (!token) {
+    if (!token) {   
         res.send({
             code: constant.tokenErrorCode,
             message: "Token is required"
