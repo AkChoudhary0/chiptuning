@@ -8,7 +8,7 @@ const engine = require("../../models/car/engine");
 const USER = require("../../models/user/user");
 const fs = require("fs");
 const multer = require("multer");
-
+const BLOG=require("../../models/blog/blog")
 const { S3Client } = require("@aws-sdk/client-s3");
 const { Upload } = require("@aws-sdk/lib-storage");
 const multerS3 = require("multer-s3");
@@ -1622,3 +1622,116 @@ exports.updateMakeShow = async (req, res) => {
     })
   }
 }
+
+
+// Admin Create Blog
+
+exports.createBlog = async (req, res) => {
+  try {
+    imageUpload(req, res, async (err) => {
+      if (err) {
+        return res.send({
+          code: constant.errorCode,
+          message: err.message
+        });
+      }
+
+      const { title, description } = req.body;
+      let file = req.file;
+
+      if (!title || !description) {
+        return res.send({
+          code: constant.errorCode,
+          message: "Title and description are required",
+        });
+      }
+
+      let saveBlog = await BLOG({
+        title,
+        description,
+        image: file ? file.location : null,
+        createdBy: req.adminId 
+      }).save();
+
+      res.send({
+        code: constant.successCode,
+        message: "Blog created successfully",
+        result: saveBlog
+      });
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
+// Get all blogs (admin)
+exports.getAllBlogs = async (req, res) => {
+  try {
+    const blogs = await BLOG.find({ isDeleted: false }).sort({ createdAt: -1 });
+
+    res.send({
+      code: constant.successCode,
+      message: "Success",
+      result: blogs
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
+
+// Get blog by ID
+exports.getBlogById = async (req, res) => {
+  try {
+    let blog = await BLOG.findOne({ _id: req.params.blogId, isDeleted: false });
+
+    if (!blog) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Blog not found"
+      });
+    }
+
+    res.send({
+      code: constant.successCode,
+      result: blog
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
+
+// Delete Blog
+exports.deleteBlog = async (req, res) => {
+  try {
+    const blog = await BLOG.findOneAndUpdate(
+      { _id: req.params.blogId },
+      { isDeleted: true },
+      { new: true }
+    );
+
+    if (!blog) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Blog not found"
+      });
+    }
+
+    res.send({
+      code: constant.successCode,
+      message: "Blog deleted successfully"
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
