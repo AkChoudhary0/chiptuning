@@ -3,10 +3,7 @@ var router = express.Router();
 const adminController = require("../controllers/admin/adminController.js");
 const loginController = require("../controllers/admin/loginController.js");
 const { verifyToken } = require("../config/auth.js");
-
-/* GET home page. */
-// user api's routes
-
+const imageUpload = require("../middleware/imageUpload.js");
 router.post("/login", loginController.login);
 router.get("/createSuperAdmin", loginController.createSuperAdmin);
 router.get("/", (req, res) => {
@@ -16,7 +13,7 @@ router.get("/", (req, res) => {
 });
 
 router.post("/createMake", [verifyToken],adminController.createMake);
-router.post("/uploadImage", [verifyToken], adminController.uploadImage);
+router.post("/uploadImage", [verifyToken], imageUpload, adminController.uploadImage);
 router.post("/getMakesWithModels", [verifyToken],adminController.getMakesWithModels);
 router.post("/createGeneration", adminController.createGeneration);
 router.post("/createModel", adminController.createModel);

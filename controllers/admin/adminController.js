@@ -16,13 +16,12 @@ const aws = require("aws-sdk");
 const path = require("path");
 const ECU = require("../../models/car/ecu");
 const { patch } = require("../../routes/admin");
-
+const imageUpload = require("../../middleware/imageUpload");
 aws.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
 });
 
-const S3Bucket = new aws.S3();
 // s3 bucket connections
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -31,26 +30,26 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_KEY,
   },
 });
-const StorageP = multerS3({
-  s3: s3,
-  bucket: process.env.AWS_BUCKET_NAME,
-  metadata: (req, file, cb) => {
-    cb(null, { fieldName: file.fieldname });
-  },
-  key: (req, file, cb) => {
-    const fileName =
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname);
-    const fullPath = `${fileName}`;
-    cb(null, fullPath);
-  },
-});
+// const StorageP = multerS3({
+//   s3: s3,
+//   bucket: process.env.AWS_BUCKET_NAME,
+//   metadata: (req, file, cb) => {
+//     cb(null, { fieldName: file.fieldname });
+//   },
+//   key: (req, file, cb) => {
+//     const fileName =
+//       file.fieldname + "-" + Date.now() + path.extname(file.originalname);
+//     const fullPath = `${fileName}`;
+//     cb(null, fullPath);
+//   },
+// });
 
-var imageUpload = multer({
-  storage: StorageP,
-  limits: {
-    fileSize: 500 * 1024 * 1024, // 500 MB limit
-  },
-}).single("file");
+// var imageUpload = multer({
+//   storage: StorageP,
+//   limits: {
+//     fileSize: 500 * 1024 * 1024, // 500 MB limit
+//   },
+// }).single("file");
 
 //Create Make
 
@@ -1571,7 +1570,9 @@ exports.updateUserDetail = async (req, res) => {
 exports.uploadImage = async (req, res, next) => {
   try {
     imageUpload(req, res, async (err) => {
+      console.log("🚀 ~ req:", req)
       let file = req.file;
+      console.log("🚀 ~ file:", file)
       res.send({
         code: constant.successCode,
         message: "Success!",
@@ -1583,7 +1584,6 @@ exports.uploadImage = async (req, res, next) => {
       code: constant.errorCode,
       message: err.message,
     });
-    return;
   }
 };
 
