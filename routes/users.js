@@ -39,7 +39,7 @@ router.post("/withoutlogin/getVehicleDropDown/:type", userController.getVehicleD
 router.post("/withoutlogin/saveFileServiceForm", userController.saveFileServiceForm);
 router.post("/withoutlogin/getServicerForms/:status", userController.getServicerForms);
 router.post("/withoutlogin/getDropDownForOri", adminController.getDropDownForOri);
-
+router.get("/withoutlogin/getAllBlogs", userController.getAllBlogsPublic);
 router.delete("/withoutlogin/deleteServiceForm/:id", userController.deleteServiceForm);
 router.get("/withoutlogin/getServicerFormById/:id", userController.getServicerFormById);
 

@@ -1769,3 +1769,4 @@ exports.deleteBlog = async (req, res) => {
     });
   }
 };
+// Public: Get all blogs for users (No token required)
