@@ -3,6 +3,7 @@ var router = express.Router();
 var userController = require("../controllers/admin/userController");
 var loginController = require("../controllers/admin/loginController");
 const adminController = require("../controllers/admin/adminController.js");
+console.log("🚀 ~ adminController:", adminController)
 const { verifyToken } = require("../config/auth.js")
 
 /* GET users listing. */
@@ -34,8 +35,6 @@ router.post("/withoutlogin/login", loginController.userLogin);
 router.post("/withoutlogin/registerUser", loginController.registerUser);
 router.post("/withoutlogin/getEngine/:engineType", adminController.getEngine);
 router.post("/withoutlogin/getMakesWithModels", adminController.getMakesWithModels);
-router.get("/withoutlogin/getBlogById/:blogId",  adminController.getBlogByIdPublic);
-
 router.post("/withoutlogin/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.post("/withoutlogin/saveFileServiceForm", userController.saveFileServiceForm);
 router.post("/withoutlogin/getServicerForms/:status", userController.getServicerForms);
@@ -43,6 +42,7 @@ router.post("/withoutlogin/getDropDownForOri", adminController.getDropDownForOri
 router.get("/withoutlogin/getAllBlogs", adminController.getAllBlogsPublic);
 router.delete("/withoutlogin/deleteServiceForm/:id", userController.deleteServiceForm);
 router.get("/withoutlogin/getServicerFormById/:id", userController.getServicerFormById);
+router.get("/withoutlogin/getBlogById/:blogId", adminController.getBlogByIdPublic);
 
 router.get("/withoutlogin/getEngineById/:engineId", userController.getEngineById);
 router.post("/withoutlogin/getEngineDetail", userController.getEngineDetail);
