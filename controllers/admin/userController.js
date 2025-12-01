@@ -7,7 +7,7 @@ const MAKE = require("../../models/car/make");
 const MODEL = require("../../models/car/model");
 const constant = require("../../config/constant");
 const { response } = require("express");
-const BLOG = require("../../models/blog/blog");
+
 //Get Vehicle dropdown
 // exports.getVehicleDropDown = async (req, res) => {
 //   try {
@@ -837,27 +837,3 @@ exports.getGenerationDropDown = async (req, res) => {
     })
   }
 }
-exports.getAllBlogsPublic = async (req, res) => {
-  try {
-    const blogs = await BLOG.find(
-      { isDeleted: false },
-      {
-        title: 1,
-        description: 1,
-        image: 1,       
-        createdAt: 1
-      }
-    ).sort({ createdAt: -1 });
-
-    res.send({
-      code: constant.successCode,
-      message: "Success",
-      result: blogs,
-    });
-  } catch (err) {
-    res.send({
-      code: constant.errorCode,
-      message: err.message,
-    });
-  }
-};
