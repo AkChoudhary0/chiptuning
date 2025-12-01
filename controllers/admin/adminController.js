@@ -1628,36 +1628,26 @@ exports.updateMakeShow = async (req, res) => {
 
 exports.createBlog = async (req, res) => {
   try {
-    imageUpload(req, res, async (err) => {
-      if (err) {
-        return res.send({
-          code: constant.errorCode,
-          message: err.message
-        });
-      }
+    const { title, description, file } = req.body; // file = image URL
 
-      const { title, description } = req.body;
-      let file = req.file;
-
-      if (!title || !description) {
-        return res.send({
-          code: constant.errorCode,
-          message: "Title and description are required",
-        });
-      }
-
-      let saveBlog = await BLOG({
-        title,
-        description,
-        image: file ? file.location : null,
-        createdBy: req.adminId 
-      }).save();
-
-      res.send({
-        code: constant.successCode,
-        message: "Blog created successfully",
-        result: saveBlog
+    if (!title || !description) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Title and description are required",
       });
+    }
+
+    let saveBlog = await BLOG({
+      title,
+      description,
+      image: file || null,  // save the uploaded image URL
+      createdBy: req.adminId
+    }).save();
+
+    res.send({
+      code: constant.successCode,
+      message: "Blog created successfully",
+      result: saveBlog
     });
   } catch (err) {
     res.send({
@@ -1666,6 +1656,7 @@ exports.createBlog = async (req, res) => {
     });
   }
 };
+
 // Get all blogs (admin)
 exports.getAllBlogs = async (req, res) => {
   try {
