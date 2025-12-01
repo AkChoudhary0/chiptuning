@@ -1674,6 +1674,49 @@ exports.getAllBlogs = async (req, res) => {
     });
   }
 };
+// Update blog
+exports.updateBlog = async (req, res) => {
+  try {
+    const { title, description, file } = req.body;
+    const blogId = req.params.blogId;
+
+    if (!title || !description) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Title and description are required",
+      });
+    }
+
+    const updatedBlog = await BLOG.findOneAndUpdate(
+      { _id: blogId, isDeleted: false },
+      {
+        title,
+        description,
+        ...(file && { image: file }) // update image only if file is provided
+      },
+      { new: true }
+    );
+
+    if (!updatedBlog) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Blog not found",
+      });
+    }
+
+    res.send({
+      code: constant.successCode,
+      message: "Blog updated successfully",
+      result: updatedBlog,
+    });
+  } catch (err) {
+    res.send({
+      code: constant.errorCode,
+      message: err.message,
+    });
+  }
+};
+
 
 // Get blog by ID
 exports.getBlogById = async (req, res) => {

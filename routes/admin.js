@@ -44,6 +44,7 @@ router.delete("/deleteModelById/:modelId", adminController.deleteModelById);
 router.post("/createBlog",[verifyToken], adminController.createBlog);
 router.get("/getAllBlogs", [verifyToken], adminController.getAllBlogs);
 router.get("/getBlogById/:blogId", [verifyToken], adminController.getBlogById);
+router.put("/updateBlog/:blogId", [verifyToken], adminController.updateBlog);
 router.delete("/deleteBlog/:blogId", [verifyToken], adminController.deleteBlog);
 // router.post("/createMake",adminController.createMake)
 
