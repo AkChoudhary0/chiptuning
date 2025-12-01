@@ -34,6 +34,7 @@ router.post("/withoutlogin/login", loginController.userLogin);
 router.post("/withoutlogin/registerUser", loginController.registerUser);
 router.post("/withoutlogin/getEngine/:engineType", adminController.getEngine);
 router.post("/withoutlogin/getMakesWithModels", adminController.getMakesWithModels);
+router.get("/withoutlogin/getBlogById/:blogId",  adminController.getBlogByIdPublic);
 
 router.post("/withoutlogin/getVehicleDropDown/:type", userController.getVehicleDropDown);
 router.post("/withoutlogin/saveFileServiceForm", userController.saveFileServiceForm);

@@ -1717,11 +1717,18 @@ exports.updateBlog = async (req, res) => {
   }
 };
 
-
-// Get blog by ID
-exports.getBlogById = async (req, res) => {
+// Get blog by ID (Public - User Side)
+exports.getBlogByIdPublic = async (req, res) => {
   try {
-    let blog = await BLOG.findOne({ _id: req.params.blogId, isDeleted: false });
+    const blog = await BLOG.findOne(
+      { _id: req.params.blogId, isDeleted: false },
+      {
+        title: 1,
+        description: 1,
+        image: 1,
+        createdAt: 1
+      }
+    );
 
     if (!blog) {
       return res.send({
@@ -1732,8 +1739,10 @@ exports.getBlogById = async (req, res) => {
 
     res.send({
       code: constant.successCode,
+      message: "Success",
       result: blog
     });
+
   } catch (err) {
     res.send({
       code: constant.errorCode,
@@ -1741,6 +1750,7 @@ exports.getBlogById = async (req, res) => {
     });
   }
 };
+
 
 // Delete Blog
 exports.deleteBlog = async (req, res) => {
