@@ -1628,7 +1628,7 @@ exports.updateMakeShow = async (req, res) => {
 
 exports.createBlog = async (req, res) => {
   try {
-    const { title, description, file } = req.body; // file = image URL
+    const { title, description, files } = req.body; // files = array of image URLs
 
     if (!title || !description) {
       return res.send({
@@ -1640,7 +1640,7 @@ exports.createBlog = async (req, res) => {
     let saveBlog = await BLOG({
       title,
       description,
-      image: file || null,  // save the uploaded image URL
+      images: Array.isArray(files) ? files : [], // save multiple images
       createdBy: req.adminId
     }).save();
 
@@ -1656,6 +1656,7 @@ exports.createBlog = async (req, res) => {
     });
   }
 };
+
 
 // Get all blogs (admin)
 exports.getAllBlogs = async (req, res) => {
