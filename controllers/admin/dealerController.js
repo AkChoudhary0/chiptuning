@@ -17,6 +17,22 @@ const transporter = nodemailer.createTransport({
 
 // Send Login Credentials Email
 const sendLoginCredentialsEmail = async (email, name, username, password) => {
+  console.log("========================================");
+  console.log("📧 ATTEMPTING TO SEND EMAIL");
+  console.log("========================================");
+  console.log("To:", email);
+  console.log("Name:", name);
+  console.log("Username:", username);
+  console.log("Password:", password);
+  console.log("========================================");
+  console.log("SMTP Configuration:");
+  console.log("Host:", process.env.AWS_SES_HOST || 'email-smtp.us-east-1.amazonaws.com');
+  console.log("Port:", process.env.AWS_SES_PORT || 587);
+  console.log("From Email:", process.env.AWS_SES_FROM_EMAIL);
+  console.log("SMTP User:", process.env.AWS_SES_USER ? "✓ Set" : "✗ Not Set");
+  console.log("SMTP Password:", process.env.AWS_SES_PASSWORD ? "✓ Set" : "✗ Not Set");
+  console.log("========================================");
+
   const mailOptions = {
     from: process.env.AWS_SES_FROM_EMAIL,
     to: email,
@@ -74,7 +90,23 @@ const sendLoginCredentialsEmail = async (email, name, username, password) => {
     `
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    console.log("📤 Sending email...");
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ EMAIL SENT SUCCESSFULLY!");
+    console.log("Message ID:", info.messageId);
+    console.log("Response:", info.response);
+    console.log("========================================");
+    return info;
+  } catch (error) {
+    console.error("❌ EMAIL SENDING FAILED!");
+    console.error("Error Name:", error.name);
+    console.error("Error Message:", error.message);
+    console.error("Error Code:", error.code);
+    console.error("Full Error:", error);
+    console.log("========================================");
+    throw error;
+  }
 };
 
 // Create Dealer Request
@@ -135,34 +167,46 @@ exports.getAllDealerRequests = async (req, res) => {
 // Approve Dealer with Manual Credentials
 exports.approveDealer = async (req, res) => {
   try {
+    console.log("\n🔄 APPROVE DEALER REQUEST RECEIVED");
+    console.log("Dealer ID:", req.params.dealerId);
+    console.log("Request Body:", req.body);
+    
     const dealerId = req.params.dealerId;
     const { username, password } = req.body;
 
     // Validate input
     if (!username || !password) {
+      console.log("❌ Validation failed: Missing username or password");
       return res.send({
         code: constant.errorCode,
         message: "Username and password are required"
       });
     }
 
-    // Validate password strength (optional but recommended)
+    // Validate password strength
     if (password.length < 6) {
+      console.log("❌ Validation failed: Password too short");
       return res.send({
         code: constant.errorCode,
         message: "Password must be at least 6 characters long"
       });
     }
 
+    console.log("✓ Input validation passed");
+
     const dealer = await DEALER.findById(dealerId);
     if (!dealer) {
+      console.log("❌ Dealer not found");
       return res.send({
         code: constant.errorCode,
         message: "Dealer request not found"
       });
     }
 
+    console.log("✓ Dealer found:", dealer.email);
+
     if (dealer.status === "approved") {
+      console.log("❌ Dealer already approved");
       return res.send({
         code: constant.errorCode,
         message: "Dealer already approved"
@@ -172,6 +216,7 @@ exports.approveDealer = async (req, res) => {
     // Check if user already exists with this email
     const existingUser = await USER.findOne({ email: dealer.email });
     if (existingUser) {
+      console.log("❌ User with email already exists");
       return res.send({
         code: constant.errorCode,
         message: "User with this email already exists"
@@ -181,16 +226,22 @@ exports.approveDealer = async (req, res) => {
     // Check if username already exists
     const existingUsername = await USER.findOne({ username: username });
     if (existingUsername) {
+      console.log("❌ Username already taken:", username);
       return res.send({
         code: constant.errorCode,
         message: "Username already taken. Please choose a different username."
       });
     }
 
+    console.log("✓ Username available");
+
     // Hash the password
+    console.log("🔐 Hashing password...");
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("✓ Password hashed");
 
     // Create login for dealer
+    console.log("👤 Creating user account...");
     const newUser = await USER({
       name: dealer.full_name,
       username: username,
@@ -199,31 +250,54 @@ exports.approveDealer = async (req, res) => {
       role: "dealer",
       isActive: true
     }).save();
+    console.log("✓ User created with ID:", newUser._id);
 
     // Update dealer status
+    console.log("📝 Updating dealer status...");
     dealer.status = "approved";
     dealer.approvedAt = new Date();
     dealer.userId = newUser._id;
     await dealer.save();
+    console.log("✓ Dealer status updated");
 
     // Send email with login credentials
+    console.log("\n📧 Preparing to send email...");
+    let emailSent = false;
+    let emailError = null;
+    
     try {
       await sendLoginCredentialsEmail(dealer.email, dealer.full_name, username, password);
-    } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-      // Continue even if email fails - user is still created
+      emailSent = true;
+      console.log("✅ Email sent successfully!\n");
+    } catch (error) {
+      emailError = error.message;
+      console.error("❌ Email sending failed but continuing...");
+      console.error("Error:", error.message, "\n");
     }
+
+    console.log("✅ DEALER APPROVAL COMPLETED");
+    console.log("Email Status:", emailSent ? "Sent ✓" : `Failed - ${emailError}`);
+    console.log("========================================\n");
 
     res.send({
       code: constant.successCode,
-      message: "Dealer approved & login created. Email sent with credentials.",
+      message: emailSent 
+        ? "Dealer approved & login created. Email sent with credentials."
+        : "Dealer approved & login created. Email sending failed - please send credentials manually.",
       result: {
         user: newUser,
-        dealer: dealer
+        dealer: dealer,
+        emailSent: emailSent,
+        emailError: emailError
       }
     });
 
   } catch (err) {
+    console.error("\n❌ ERROR IN APPROVE DEALER:");
+    console.error("Error Message:", err.message);
+    console.error("Error Stack:", err.stack);
+    console.log("========================================\n");
+    
     res.send({
       code: constant.errorCode,
       message: err.message,
