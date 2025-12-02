@@ -8,13 +8,27 @@ const jwt = require("jsonwebtoken");
 exports.login = async (req, res) => {
   try {
     let data = req.body;
-    let checkEmail = await USER.findOne({ 
-      $or: [
-        { email: data.email },
-        { username: data.email }  
-      ]
-    });
-    if (!checkEmail) {
+    // Validate input
+    if (!data.username || !data.password) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Username and password are required",
+      });
+    }
+    
+    // Find user by USERNAME
+    let checkUser = await USER.findOne({ username: data.username });
+        if (checkUser) {
+      console.log("User details:", {
+        _id: checkUser._id,
+        username: checkUser.username,
+        email: checkUser.email,
+        role: checkUser.role,
+        status: checkUser.status
+      });
+    }
+    
+    if (!checkUser) {
       res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
@@ -22,17 +36,16 @@ exports.login = async (req, res) => {
       return;
     }
     
-    if (!checkEmail.status) {
+    if (!checkUser.status) {
       res.send({
         code: constant.errorCode,
         message: "Your account is blocked",
       });
       return;
     }
-
     let checkPassword = await bcrypt.compare(
       data.password,
-      checkEmail.password
+      checkUser.password
     );    
     if (!checkPassword) {
       res.send({
@@ -44,27 +57,28 @@ exports.login = async (req, res) => {
     
     let token = jwt.sign(
       {
-        userId: checkEmail._id,
-        status: checkEmail.status,
-        role: checkEmail.role,
+        userId: checkUser._id,
+        status: checkUser.status,
+        role: checkUser.role,
       },
       process.env.JWTSECRET,
       { expiresIn: "1d" }
-    );    
+    );
     res.send({
       code: constant.successCode,
       message: "Login Successfully",
       result: {
-        email: checkEmail.email,
-        username: checkEmail.username,
+        email: checkUser.email,
+        username: checkUser.username,
         token: token,
-        role: checkEmail.role,
-        status: checkEmail.status,
-        firstName: checkEmail.firstName,
-        lastName: checkEmail.lastName,
+        role: checkUser.role,
+        status: checkUser.status,
+        firstName: checkUser.firstName,
+        lastName: checkUser.lastName,
       },
     });
   } catch (err) {
+    console.error("❌ Login error:", err);
     res.send({
       code: constant.errorCode,
       message: err.message,

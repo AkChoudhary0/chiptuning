@@ -134,31 +134,32 @@ exports.approveDealer = async (req, res) => {
   try {
     const dealerId = req.params.dealerId;
     const { username, password } = req.body;
+    
     if (!username || !password) {
       return res.send({
         code: constant.errorCode,
-        message: "Username and password are required",
+        message: "Username and password are required"
       });
     }
-
-    // Validate password strength
     if (password.length < 6) {
       return res.send({
         code: constant.errorCode,
-        message: "Password must be at least 6 characters long",
+        message: "Password must be at least 6 characters long"
       });
     }
+    
     const dealer = await DEALER.findById(dealerId);
     if (!dealer) {
       return res.send({
         code: constant.errorCode,
-        message: "Dealer request not found",
+        message: "Dealer request not found"
       });
     }
+    
     if (dealer.status === "approved") {
       return res.send({
         code: constant.errorCode,
-        message: "Dealer already approved",
+        message: "Dealer already approved"
       });
     }
 
@@ -166,7 +167,7 @@ exports.approveDealer = async (req, res) => {
     if (existingUser) {
       return res.send({
         code: constant.errorCode,
-        message: "User with this email already exists",
+        message: "User with this email already exists"
       });
     }
 
@@ -175,53 +176,60 @@ exports.approveDealer = async (req, res) => {
     if (existingUsername) {
       return res.send({
         code: constant.errorCode,
-        message: "Username already taken. Please choose a different username.",
+        message: "Username already taken. Please choose a different username."
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10)
+    // Create login for dealer - FIXED TO MATCH SCHEMA
     const newUser = await USER({
       email: dealer.email,
       username: username,
       password: hashedPassword,
-      firstName: dealer.full_name.split(" ")[0] || dealer.full_name,
-      lastName: dealer.full_name.split(" ").slice(1).join(" ") || "",
+      firstName: dealer.full_name.split(' ')[0] || dealer.full_name,
+      lastName: dealer.full_name.split(' ').slice(1).join(' ') || '',
       role: "dealer",
-      status: true,
+      status: true 
     }).save();
+        
     dealer.status = "approved";
     dealer.approvedAt = new Date();
     dealer.userId = newUser._id;
     await dealer.save();
+    
     let emailSent = false;
     let emailError = null;
-
+    
     try {
-      await sendLoginCredentialsEmail(
-        dealer.email,
-        dealer.full_name,
-        username,
-        password
-      );
+      await sendLoginCredentialsEmail(dealer.email, dealer.full_name, username, password);
       emailSent = true;
     } catch (error) {
       emailError = error.message;
-      console.error("❌ Email sending failed but continuing...");
-      console.error("Error:", error.message, "\n");
+      console.error("❌ Email sending failed:", error.message);
     }
+    
     res.send({
       code: constant.successCode,
-      message: emailSent
+      message: emailSent 
         ? "Dealer approved & login created. Email sent with credentials."
         : "Dealer approved & login created. Email sending failed - please send credentials manually.",
       result: {
-        user: newUser,
+        user: {
+          _id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+          role: newUser.role,
+          status: newUser.status
+        },
         dealer: dealer,
         emailSent: emailSent,
-        emailError: emailError,
-      },
+        emailError: emailError
+      }
     });
+
   } catch (err) {
+    console.error("❌ Error in approveDealer:", err);
     res.send({
       code: constant.errorCode,
       message: err.message,
