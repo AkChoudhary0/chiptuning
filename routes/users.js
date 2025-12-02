@@ -50,7 +50,4 @@ router.post("/withoutlogin/getECUDetail", userController.getECUDetail);
 router.post("/withoutlogin/getGenerationDropDown", userController.getGenerationDropDown);
 router.post("/dealer/request", dealerCtrl.createDealerRequest);
 
-// Admin routes
-router.get("/dealers", dealerCtrl.getAllDealerRequests);
-router.post("/dealer/approve/:dealerId", dealerCtrl.approveDealer);
 module.exports = router;
