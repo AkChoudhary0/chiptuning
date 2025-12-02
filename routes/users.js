@@ -5,7 +5,7 @@ var loginController = require("../controllers/admin/loginController");
 const adminController = require("../controllers/admin/adminController.js");
 console.log("🚀 ~ adminController:", adminController)
 const { verifyToken } = require("../config/auth.js")
-
+const dealerCtrl = require("../controllers/admin/dealerController.js");
 /* GET users listing. */
 router.get("/", function (req, res, next) {
   res.send("respond with a resource");
@@ -48,5 +48,9 @@ router.get("/withoutlogin/getEngineById/:engineId", userController.getEngineById
 router.post("/withoutlogin/getEngineDetail", userController.getEngineDetail);
 router.post("/withoutlogin/getECUDetail", userController.getECUDetail);
 router.post("/withoutlogin/getGenerationDropDown", userController.getGenerationDropDown);
+router.post("/dealer/request", dealerCtrl.createDealerRequest);
 
+// Admin routes
+router.get("/dealers", dealerCtrl.getAllDealerRequests);
+router.post("/dealer/approve/:dealerId", dealerCtrl.approveDealer);
 module.exports = router;

@@ -1,7 +1,7 @@
-const DEALER = require("../models/Dealer");
-const USER = require("../models/User"); 
-const constant = require("../config/constant");
-const sendMail = require("../helpers/sendMail"); 
+const DEALER = require("../../models/dealer/dealer")
+const USER = require("../../models/user/user")
+const constant = require("../../config/constant")
+// const sendMail = require("../helpers/sendMail"); 
 const bcrypt = require("bcryptjs");
 
 exports.createDealerRequest = async (req, res) => {
@@ -97,18 +97,18 @@ exports.approveDealer = async (req, res) => {
     await dealer.save();
 
     // Send login email
-    await sendMail(
-      dealer.email,
-      "Your Dealer Login is Ready - Alpha Performance",
-      `
-      <h3>Welcome ${dealer.full_name},</h3>
-      <p>Your dealer account has been approved.</p>
-      <p><strong>Login Details:</strong></p>
-      <p>Email: ${dealer.email}</p>
-      <p>Password: ${randomPassword}</p>
-      <p>You can now login from the dealer portal.</p>
-      `
-    );
+    // await sendMail(
+    //   dealer.email,
+    //   "Your Dealer Login is Ready - Alpha Performance",
+    //   `
+    //   <h3>Welcome ${dealer.full_name},</h3>
+    //   <p>Your dealer account has been approved.</p>
+    //   <p><strong>Login Details:</strong></p>
+    //   <p>Email: ${dealer.email}</p>
+    //   <p>Password: ${randomPassword}</p>
+    //   <p>You can now login from the dealer portal.</p>
+    //   `
+    // );
 
     res.send({
       code: constant.successCode,
