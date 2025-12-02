@@ -1623,9 +1623,7 @@ exports.updateMakeShow = async (req, res) => {
   }
 }
 
-
-// Admin Create Blog
-
+// Create Blog with Multiple Images
 exports.createBlog = async (req, res) => {
   try {
     const { title, description, files } = req.body; // files = array of image URLs
@@ -1637,10 +1635,18 @@ exports.createBlog = async (req, res) => {
       });
     }
 
+    // Validate that files is provided and is an array
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      return res.send({
+        code: constant.errorCode,
+        message: "At least one image is required",
+      });
+    }
+
     let saveBlog = await BLOG({
       title,
       description,
-      images: Array.isArray(files) ? files : [], // save multiple images
+      images: files, // save multiple images array
       createdBy: req.adminId
     }).save();
 
@@ -1656,7 +1662,6 @@ exports.createBlog = async (req, res) => {
     });
   }
 };
-
 
 // Get all blogs (admin)
 exports.getAllBlogs = async (req, res) => {
@@ -1675,10 +1680,11 @@ exports.getAllBlogs = async (req, res) => {
     });
   }
 };
-// Update blog
+
+// Update blog with Multiple Images Support
 exports.updateBlog = async (req, res) => {
   try {
-    const { title, description, file } = req.body;
+    const { title, description, files } = req.body; 
     const blogId = req.params.blogId;
 
     if (!title || !description) {
@@ -1688,13 +1694,19 @@ exports.updateBlog = async (req, res) => {
       });
     }
 
+    const updateData = {
+      title,
+      description,
+    };
+
+    // Update images only if files array is provided
+    if (files && Array.isArray(files) && files.length > 0) {
+      updateData.images = files;
+    }
+
     const updatedBlog = await BLOG.findOneAndUpdate(
       { _id: blogId, isDeleted: false },
-      {
-        title,
-        description,
-        ...(file && { image: file }) // update image only if file is provided
-      },
+      updateData,
       { new: true }
     );
 
@@ -1726,7 +1738,7 @@ exports.getBlogByIdPublic = async (req, res) => {
       {
         title: 1,
         description: 1,
-        image: 1,
+        images: 1,
         createdAt: 1
       }
     );
@@ -1752,8 +1764,7 @@ exports.getBlogByIdPublic = async (req, res) => {
   }
 };
 
-
-// Delete Blog
+// Delete Blog (Soft Delete)
 exports.deleteBlog = async (req, res) => {
   try {
     const blog = await BLOG.findOneAndUpdate(
@@ -1780,6 +1791,8 @@ exports.deleteBlog = async (req, res) => {
     });
   }
 };
+
+// Get all blogs (Public - User Side)
 exports.getAllBlogsPublic = async (req, res) => {
   try {
     const blogs = await BLOG.find(
@@ -1787,10 +1800,11 @@ exports.getAllBlogsPublic = async (req, res) => {
       {
         title: 1,
         description: 1,
-        image: 1,       
+        images: 1, 
         createdAt: 1
       }
     ).sort({ createdAt: -1 });
+
     res.send({
       code: constant.successCode,
       message: "Success",
