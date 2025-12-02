@@ -6,19 +6,19 @@ const bcrypt = require("bcryptjs");
 
 // AWS SES Email Configuration
 const transporter = nodemailer.createTransport({
-  host: process.env.AWS_SES_HOST || 'email-smtp.us-east-1.amazonaws.com', // Change region as needed
+  host: process.env.AWS_SES_HOST || 'email-smtp.us-east-1.amazonaws.com',
   port: process.env.AWS_SES_PORT || 587,
-  secure: false, // true for 465, false for other ports
+  secure: false,
   auth: {
-    user: process.env.AWS_SES_USER, // SMTP Username from AWS SES
-    pass: process.env.AWS_SES_PASSWORD // SMTP Password from AWS SES
+    user: process.env.AWS_SES_USER,
+    pass: process.env.AWS_SES_PASSWORD
   }
 });
 
 // Send Login Credentials Email
-const sendLoginCredentialsEmail = async (email, name, password) => {
+const sendLoginCredentialsEmail = async (email, name, username, password) => {
   const mailOptions = {
-    from: process.env.AWS_SES_FROM_EMAIL, // Must be verified in AWS SES
+    from: process.env.AWS_SES_FROM_EMAIL,
     to: email,
     subject: 'Your Dealer Account Has Been Approved - Login Credentials',
     html: `
@@ -47,8 +47,8 @@ const sendLoginCredentialsEmail = async (email, name, password) => {
             
             <div class="credentials">
               <h3>Your Login Credentials:</h3>
-              <p><strong>Email:</strong> ${email}</p>
-              <p><strong>Temporary Password:</strong> <code style="background: #f0f0f0; padding: 5px 10px; border-radius: 3px; font-size: 16px;">${password}</code></p>
+              <p><strong>Username:</strong> ${username}</p>
+              <p><strong>Password:</strong> <code style="background: #f0f0f0; padding: 5px 10px; border-radius: 3px; font-size: 16px;">${password}</code></p>
             </div>
             
             <div class="warning">
@@ -76,8 +76,6 @@ const sendLoginCredentialsEmail = async (email, name, password) => {
 
   await transporter.sendMail(mailOptions);
 };
-
-
 
 // Create Dealer Request
 exports.createDealerRequest = async (req, res) => {
@@ -134,10 +132,27 @@ exports.getAllDealerRequests = async (req, res) => {
   }
 };
 
-// Approve Dealer (with Email)
+// Approve Dealer with Manual Credentials
 exports.approveDealer = async (req, res) => {
   try {
     const dealerId = req.params.dealerId;
+    const { username, password } = req.body;
+
+    // Validate input
+    if (!username || !password) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Username and password are required"
+      });
+    }
+
+    // Validate password strength (optional but recommended)
+    if (password.length < 6) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Password must be at least 6 characters long"
+      });
+    }
 
     const dealer = await DEALER.findById(dealerId);
     if (!dealer) {
@@ -154,7 +169,7 @@ exports.approveDealer = async (req, res) => {
       });
     }
 
-    // Check if user already exists
+    // Check if user already exists with this email
     const existingUser = await USER.findOne({ email: dealer.email });
     if (existingUser) {
       return res.send({
@@ -163,13 +178,22 @@ exports.approveDealer = async (req, res) => {
       });
     }
 
-    // Generate random password
-    const randomPassword = Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    // Check if username already exists
+    const existingUsername = await USER.findOne({ username: username });
+    if (existingUsername) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Username already taken. Please choose a different username."
+      });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create login for dealer
     const newUser = await USER({
       name: dealer.full_name,
+      username: username,
       email: dealer.email,
       password: hashedPassword,
       role: "dealer",
@@ -179,11 +203,12 @@ exports.approveDealer = async (req, res) => {
     // Update dealer status
     dealer.status = "approved";
     dealer.approvedAt = new Date();
+    dealer.userId = newUser._id;
     await dealer.save();
 
     // Send email with login credentials
     try {
-      await sendLoginCredentialsEmail(dealer.email, dealer.full_name, randomPassword);
+      await sendLoginCredentialsEmail(dealer.email, dealer.full_name, username, password);
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
       // Continue even if email fails - user is still created
@@ -196,62 +221,6 @@ exports.approveDealer = async (req, res) => {
         user: newUser,
         dealer: dealer
       }
-    });
-
-  } catch (err) {
-    res.send({
-      code: constant.errorCode,
-      message: err.message,
-    });
-  }
-};
-
-// Reject Dealer (New API)
-exports.rejectDealer = async (req, res) => {
-  try {
-    const dealerId = req.params.dealerId;
-    const { reason } = req.body;
-
-    const dealer = await DEALER.findById(dealerId);
-    if (!dealer) {
-      return res.send({
-        code: constant.errorCode,
-        message: "Dealer request not found"
-      });
-    }
-
-    if (dealer.status === "rejected") {
-      return res.send({
-        code: constant.errorCode,
-        message: "Dealer already rejected"
-      });
-    }
-
-    if (dealer.status === "approved") {
-      return res.send({
-        code: constant.errorCode,
-        message: "Cannot reject an approved dealer"
-      });
-    }
-
-    // Update dealer status
-    dealer.status = "rejected";
-    dealer.rejectionReason = reason || "Not specified";
-    dealer.rejectedAt = new Date();
-    await dealer.save();
-
-    // Send rejection email
-    try {
-      await sendRejectionEmail(dealer.email, dealer.full_name, reason);
-    } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-      // Continue even if email fails
-    }
-
-    res.send({
-      code: constant.successCode,
-      message: "Dealer rejected successfully. Notification email sent.",
-      result: dealer
     });
 
   } catch (err) {
