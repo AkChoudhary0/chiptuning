@@ -8,7 +8,12 @@ const jwt = require("jsonwebtoken");
 exports.login = async (req, res) => {
   try {
     let data = req.body;
-    let checkEmail = await USER.findOne({ email: data.email });
+    let checkEmail = await USER.findOne({ 
+      $or: [
+        { email: data.email },
+        { username: data.email }  
+      ]
+    });
     if (!checkEmail) {
       res.send({
         code: constant.errorCode,
@@ -16,6 +21,7 @@ exports.login = async (req, res) => {
       });
       return;
     }
+    
     if (!checkEmail.status) {
       res.send({
         code: constant.errorCode,
@@ -27,7 +33,7 @@ exports.login = async (req, res) => {
     let checkPassword = await bcrypt.compare(
       data.password,
       checkEmail.password
-    );
+    );    
     if (!checkPassword) {
       res.send({
         code: constant.errorCode,
@@ -35,6 +41,7 @@ exports.login = async (req, res) => {
       });
       return;
     }
+    
     let token = jwt.sign(
       {
         userId: checkEmail._id,
@@ -43,12 +50,13 @@ exports.login = async (req, res) => {
       },
       process.env.JWTSECRET,
       { expiresIn: "1d" }
-    );
+    );    
     res.send({
       code: constant.successCode,
       message: "Login Successfully",
       result: {
         email: checkEmail.email,
+        username: checkEmail.username,
         token: token,
         role: checkEmail.role,
         status: checkEmail.status,
