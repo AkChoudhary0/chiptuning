@@ -7,6 +7,10 @@ const user = new Schema(
       type: String,
       required: [true, "email is required"],
     },
+     username: {
+    type: String,
+    unique: true,
+    required: [true, "username is required"],},
     password: {
       type: String,
       required: [true, "password is required"],
@@ -25,7 +29,7 @@ const user = new Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "user"],
+      enum: ["admin", "user","dealer"],
       default: "user",
     },
     status: {
