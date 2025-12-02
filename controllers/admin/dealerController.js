@@ -3,7 +3,6 @@ const USER = require("../../models/user/user")
 const constant = require("../../config/constant")
 // const sendMail = require("../helpers/sendMail"); 
 const bcrypt = require("bcryptjs");
-
 exports.createDealerRequest = async (req, res) => {
   try {
     const { business_name, full_name, phone, email, country, message } = req.body;
