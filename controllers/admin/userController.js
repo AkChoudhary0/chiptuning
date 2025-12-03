@@ -697,9 +697,15 @@ exports.getECUDetail = async (req, res) => {
 exports.saveFileServiceForm = async (req, res) => {
   try {
     let data = req.body;
+
+    // Save user ID inside tuning
+    if (!data.tuning) data.tuning = {};
+    data.tuning.user_id = req.userId;
+
     let result;
     let option = { new: true };
-    if (data.serviceId != "" && data.serviceId) {
+
+    if (data.serviceId) {
       result = await FILESERVICE.findOneAndUpdate(
         { _id: data.serviceId },
         data,
@@ -708,6 +714,7 @@ exports.saveFileServiceForm = async (req, res) => {
     } else {
       result = await FILESERVICE(data).save();
     }
+
     res.send({
       code: constant.successCode,
       message: "Success!",
