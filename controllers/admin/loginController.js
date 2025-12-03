@@ -5,22 +5,42 @@ const USER = require("../../models/user/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// ==============================================
+// UNIFIED LOGIN - ACCEPTS EMAIL OR USERNAME
+// ==============================================
 exports.login = async (req, res) => {
   try {
     let data = req.body;
     
-    console.log("🔍 Login Attempt:", { username: data.username });
+    console.log("🔍 Login Attempt with:", data);
     
-    // Validate input
-    if (!data.username || !data.password) {
+    // Validate input - accept either email or username
+    if (!data.identifier && !data.username && !data.email) {
       return res.send({
         code: constant.errorCode,
-        message: "Username and password are required",
+        message: "Email or username is required",
       });
     }
     
-    // Find user by USERNAME
-    let checkUser = await USER.findOne({ username: data.username });
+    if (!data.password) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Password is required",
+      });
+    }
+    
+    // Determine what was provided (email or username)
+    const loginIdentifier = data.identifier || data.username || data.email;
+    
+    console.log("🔍 Looking for user with:", loginIdentifier);
+    
+    // Search by BOTH email AND username
+    let checkUser = await USER.findOne({
+      $or: [
+        { email: loginIdentifier },
+        { username: loginIdentifier }
+      ]
+    });
     
     if (checkUser) {
       console.log("✅ User Found:", {
@@ -29,33 +49,32 @@ exports.login = async (req, res) => {
         email: checkUser.email,
         role: checkUser.role,
         status: checkUser.status,
-        hashedPasswordLength: checkUser.password.length,
-        hashedPasswordPreview: checkUser.password.substring(0, 20) + "..."
+        hashedPasswordLength: checkUser.password ? checkUser.password.length : 0
       });
     } else {
-      console.log("❌ User NOT Found with username:", data.username);
+      console.log("❌ User NOT Found with identifier:", loginIdentifier);
     }
     
     if (!checkUser) {
-      res.send({
+      return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
-      return;
     }
     
+    // Check if account is active
     if (!checkUser.status) {
       console.log("❌ User account is blocked");
-      res.send({
+      return res.send({
         code: constant.errorCode,
         message: "Your account is blocked",
       });
-      return;
     }
     
+    // Compare passwords
     console.log("🔐 Comparing passwords...");
     console.log("   Input password:", data.password);
-    console.log("   Stored hash:", checkUser.password.substring(0, 30) + "...");
+    console.log("   Stored hash preview:", checkUser.password ? checkUser.password.substring(0, 30) + "..." : "NO HASH");
     
     let checkPassword = await bcrypt.compare(
       data.password,
@@ -66,15 +85,15 @@ exports.login = async (req, res) => {
     
     if (!checkPassword) {
       console.log("❌ Password comparison FAILED");
-      res.send({
+      return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
-      return;
     }
     
-    console.log("✅ Login Successful for:", checkUser.username);
+    console.log("✅ Login Successful for:", checkUser.username || checkUser.email);
     
+    // Generate JWT token
     let token = jwt.sign(
       {
         userId: checkUser._id,
@@ -85,10 +104,11 @@ exports.login = async (req, res) => {
       { expiresIn: "1d" }
     );
     
-    res.send({
+    return res.send({
       code: constant.successCode,
       message: "Login Successfully",
       result: {
+        _id: checkUser._id,
         email: checkUser.email,
         username: checkUser.username,
         token: token,
@@ -100,48 +120,67 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Login error:", err);
-    res.send({
+    return res.send({
       code: constant.errorCode,
       message: err.message,
     });
   }
 };
+
+// ==============================================
+// USER LOGIN (LEGACY - Consider using unified login above)
+// ==============================================
 exports.userLogin = async (req, res) => {
   try {
     let data = req.body;
-    let checkEmail = await USER.findOne({ email: data.email });
+    
+    console.log("🔍 User Login Attempt:", data.email);
+    
+    // Search by BOTH email AND username for flexibility
+    let checkEmail = await USER.findOne({
+      $or: [
+        { email: data.email },
+        { username: data.email } // In case they send username in email field
+      ]
+    });
+    
     if (!checkEmail) {
-      res.send({
+      console.log("❌ User not found");
+      return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
-      return;
     }
+    
     if (!checkEmail.status) {
-      res.send({
+      console.log("❌ Account blocked");
+      return res.send({
         code: constant.errorCode,
         message: "Your account is blocked",
       });
-      return;
     }
+    
     if (checkEmail.role != "user") {
-      res.send({
+      console.log("❌ Invalid role:", checkEmail.role);
+      return res.send({
         code: constant.errorCode,
         message: "Invalid Credentials",
       });
-      return;
     }
+    
     let checkPassword = await bcrypt.compare(
       data.password,
       checkEmail.password
     );
+    
     if (!checkPassword) {
-      res.send({
+      console.log("❌ Password mismatch");
+      return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
-      return;
     }
+    
     let token = jwt.sign(
       {
         userId: checkEmail._id,
@@ -151,11 +190,14 @@ exports.userLogin = async (req, res) => {
       process.env.JWTSECRET,
       { expiresIn: "1d" }
     );
-    res.send({
+    
+    return res.send({
       code: constant.successCode,
       message: "Login Successfully",
       result: { 
+        _id: checkEmail._id,
         email: checkEmail.email,
+        username: checkEmail.username,
         token: token,
         role: checkEmail.role,
         status: checkEmail.status,
@@ -164,17 +206,22 @@ exports.userLogin = async (req, res) => {
       },
     });
   } catch (err) {
-    res.send({
+    console.error("❌ User login error:", err);
+    return res.send({
       code: constant.errorCode,
       message: err.message,
     });
   }
 };
 
+// ==============================================
+// CREATE SUPER ADMIN
+// ==============================================
 exports.createSuperAdmin = async (req, res) => {
   try {
     let superObject = {
       email: "super@chiptuning.com",
+      username: "superadmin", // Added username
       password: bcrypt.hashSync("super123", 10),
       role: "admin",
       status: true,
@@ -186,56 +233,79 @@ exports.createSuperAdmin = async (req, res) => {
     let checkEmail = await USER.findOne({
       email: superObject.email,
     });
+    
     if (checkEmail) {
-      res.send({
+      return res.send({
         code: constant.errorCode,
         message: "Email already exist",
       });
-      return;
     }
+    
     let createData = await USER(superObject).save();
-    res.send({
+    
+    return res.send({
       code: constant.successCode,
       message: "Super Admin Created Successfully",
       result: createData,
     });
   } catch (err) {
-    res.send({
+    console.error("❌ Super admin creation error:", err);
+    return res.send({
       code: constant.errorCode,
       message: err.message,
     });
   }
 };
 
+// ==============================================
+// REGISTER USER
+// ==============================================
 exports.registerUser = async (req, res) => {
   try {
     let data = req.body;
+    
+    // Check if email already exists
     let checkEmail = await USER.findOne({ email: data.email });
     if (checkEmail) {
-      res.send({
+      return res.send({
         code: constant.errorCode,
         message: "Email already exist",
       });
-      return;
     }
-    let hashPassword = await bcrypt.hashSync(data.password, 10);
-    data.rple = "user";
+    
+    // Check if username already exists (if provided)
+    if (data.username) {
+      let checkUsername = await USER.findOne({ username: data.username });
+      if (checkUsername) {
+        return res.send({
+          code: constant.errorCode,
+          message: "Username already taken",
+        });
+      }
+    }
+    
+    // Hash password
+    let hashPassword = bcrypt.hashSync(data.password, 10);
+    data.role = "user"; // FIXED TYPO: was "rple"
     data.password = hashPassword;
+    
     let createData = await USER(data).save();
+    
     if (!createData) {
-      res.send({
+      return res.send({
         code: constant.errorCode,
         message: "User not created",
       });
-    } else {
-      res.send({
-        code: constant.successCode,
-        message: "User created successfully",
-        result: createData,
-      });
     }
+    
+    return res.send({
+      code: constant.successCode,
+      message: "User created successfully",
+      result: createData,
+    });
   } catch (err) {
-    res.send({
+    console.error("❌ User registration error:", err);
+    return res.send({
       code: constant.errorCode,
       message: err.message,
     });
