@@ -5,16 +5,10 @@ const USER = require("../../models/user/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// ==============================================
 // UNIFIED LOGIN - ACCEPTS EMAIL OR USERNAME
-// ==============================================
 exports.login = async (req, res) => {
   try {
-    let data = req.body;
-    
-    console.log("🔍 Login Attempt with:", data);
-    
-    // Validate input - accept either email or username
+    let data = req.body;    
     if (!data.identifier && !data.username && !data.email) {
       return res.send({
         code: constant.errorCode,
@@ -28,13 +22,7 @@ exports.login = async (req, res) => {
         message: "Password is required",
       });
     }
-    
-    // Determine what was provided (email or username)
-    const loginIdentifier = data.identifier || data.username || data.email;
-    
-    console.log("🔍 Looking for user with:", loginIdentifier);
-    
-    // Search by BOTH email AND username
+        const loginIdentifier = data.identifier || data.username || data.email;    
     let checkUser = await USER.findOne({
       $or: [
         { email: loginIdentifier },
@@ -42,57 +30,28 @@ exports.login = async (req, res) => {
       ]
     });
     
-    if (checkUser) {
-      console.log("✅ User Found:", {
-        _id: checkUser._id,
-        username: checkUser.username,
-        email: checkUser.email,
-        role: checkUser.role,
-        status: checkUser.status,
-        hashedPasswordLength: checkUser.password ? checkUser.password.length : 0
-      });
-    } else {
-      console.log("❌ User NOT Found with identifier:", loginIdentifier);
-    }
-    
     if (!checkUser) {
       return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
     }
-    
-    // Check if account is active
-    if (!checkUser.status) {
-      console.log("❌ User account is blocked");
+        if (!checkUser.status) {
       return res.send({
         code: constant.errorCode,
         message: "Your account is blocked",
       });
     }
-    
-    // Compare passwords
-    console.log("🔐 Comparing passwords...");
-    console.log("   Input password:", data.password);
-    console.log("   Stored hash preview:", checkUser.password ? checkUser.password.substring(0, 30) + "..." : "NO HASH");
-    
     let checkPassword = await bcrypt.compare(
       data.password,
       checkUser.password
-    );
-    
-    console.log("🔐 Password Match Result:", checkPassword);
-    
+    );    
     if (!checkPassword) {
-      console.log("❌ Password comparison FAILED");
       return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
-    }
-    
-    console.log("✅ Login Successful for:", checkUser.username || checkUser.email);
-    
+    }    
     // Generate JWT token
     let token = jwt.sign(
       {
@@ -126,28 +85,21 @@ exports.login = async (req, res) => {
     });
   }
 };
-
-// ==============================================
 // USER LOGIN - UPDATED TO ACCEPT ALL ROLES
-// ==============================================
+
 exports.userLogin = async (req, res) => {
   try {
     let data = req.body;
     
     // Accept email, username, or identifier
-    const loginIdentifier = data.identifier || data.username || data.email;
-    
-    console.log("🔍 User Login Attempt with:", loginIdentifier);
-    
+    const loginIdentifier = data.identifier || data.username || data.email;    
     if (!loginIdentifier) {
       return res.send({
         code: constant.errorCode,
         message: "Email or username is required",
       });
     }
-    
-    // Search by BOTH email AND username for flexibility
-    let checkEmail = await USER.findOne({
+        let checkEmail = await USER.findOne({
       $or: [
         { email: loginIdentifier },
         { username: loginIdentifier }
@@ -155,55 +107,27 @@ exports.userLogin = async (req, res) => {
     });
     
     if (!checkEmail) {
-      console.log("❌ User not found with:", loginIdentifier);
       return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
-    }
-    
-    console.log("✅ User Found:", {
-      username: checkEmail.username,
-      email: checkEmail.email,
-      role: checkEmail.role,
-      status: checkEmail.status
-    });
-    
+    }  
     if (!checkEmail.status) {
-      console.log("❌ Account blocked");
       return res.send({
         code: constant.errorCode,
         message: "Your account is blocked",
       });
     }
-    
-    // REMOVED ROLE CHECK - Now accepts all roles (user, dealer, admin)
-    // if (checkEmail.role != "user") {
-    //   console.log("❌ Invalid role:", checkEmail.role);
-    //   return res.send({
-    //     code: constant.errorCode,
-    //     message: "Invalid Credentials",
-    //   });
-    // }
-    
-    console.log("🔐 Comparing passwords...");
-    let checkPassword = await bcrypt.compare(
+         let checkPassword = await bcrypt.compare(
       data.password,
       checkEmail.password
-    );
-    
-    console.log("🔐 Password Match Result:", checkPassword);
-    
+    );    
     if (!checkPassword) {
-      console.log("❌ Password mismatch");
       return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
-    }
-    
-    console.log("✅ Login Successful for role:", checkEmail.role);
-    
+    }    
     let token = jwt.sign(
       {
         userId: checkEmail._id,
@@ -237,14 +161,12 @@ exports.userLogin = async (req, res) => {
   }
 };
 
-// ==============================================
 // CREATE SUPER ADMIN
-// ==============================================
 exports.createSuperAdmin = async (req, res) => {
   try {
     let superObject = {
       email: "super@chiptuning.com",
-      username: "superadmin", // Added username
+      username: "superadmin", 
       password: bcrypt.hashSync("super123", 10),
       role: "admin",
       status: true,
@@ -279,13 +201,7 @@ exports.createSuperAdmin = async (req, res) => {
     });
   }
 };
-
-
-
-
-// ==============================================
 // REGISTER USER
-// ==============================================
 exports.registerUser = async (req, res) => {
   try {
     let data = req.body;

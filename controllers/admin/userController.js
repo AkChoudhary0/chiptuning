@@ -723,36 +723,42 @@ exports.saveFileServiceForm = async (req, res) => {
 
 exports.getServicerForms = async (req, res) => {
   try {
-    let data = req.body
-    let getData = await FILESERVICE.aggregate([
+    const userEmail = req.user.email;
+    const status = req.params.status;
+
+    const getData = await FILESERVICE.aggregate([
       {
         $match: {
           $and: [
-            { completion_status: req.params.status },
-            { isDeleted: false }
+            { completion_status: status },
+            { isDeleted: false },
+            { "tuning.email": userEmail }   
           ]
         }
       }
-    ])
-    if (!getData) {
-      re.send({
+    ]);
+
+    if (!getData || getData.length === 0) {
+      return res.send({
         code: constant.errorCode,
         message: "No Data Found",
-      })
-    } else {
-      res.send({
-        code: constant.successCode,
-        message: "Success!",
-        result: getData
-      })
+      });
     }
+
+    res.send({
+      code: constant.successCode,
+      message: "Success!",
+      result: getData
+    });
+
   } catch (err) {
     res.send({
       code: constant.errorCode,
       message: err.message,
-    })
+    });
   }
-}
+};
+
 
 exports.deleteServiceForm = async (req, res) => {
   try {

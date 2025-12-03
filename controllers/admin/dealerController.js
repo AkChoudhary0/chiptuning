@@ -133,10 +133,7 @@ exports.getAllDealerRequests = async (req, res) => {
 exports.approveDealer = async (req, res) => {
   try {
     const dealerId = req.params.dealerId;
-    const { username, password } = req.body;
-    
-    console.log("🔍 Dealer Approval Request:", { dealerId, username, passwordLength: password?.length });
-    
+    const { username, password } = req.body;    
     if (!username || !password) {
       return res.send({
         code: constant.errorCode,
@@ -183,14 +180,8 @@ exports.approveDealer = async (req, res) => {
         message: "Username already taken. Please choose a different username."
       });
     }
-
-    // Hash the password using bcrypt.hashSync (consistent with other functions)
-    console.log("🔐 Hashing password...");
     const hashedPassword = bcrypt.hashSync(password, 10);
-    console.log("🔐 Password hashed successfully, length:", hashedPassword.length);
-    
-    // Create dealer user account
-    const newUser = await USER({
+        const newUser = await USER({
       email: dealer.email,
       username: username,
       password: hashedPassword,
@@ -198,15 +189,7 @@ exports.approveDealer = async (req, res) => {
       lastName: dealer.full_name.split(' ').slice(1).join(' ') || '',
       role: "dealer",
       status: true 
-    }).save();
-    
-    console.log("✅ Dealer User Created:", {
-      _id: newUser._id,
-      username: newUser.username,
-      email: newUser.email,
-      role: newUser.role
-    });
-        
+    }).save();     
     // Update dealer status
     dealer.status = "approved";
     dealer.approvedAt = new Date();
@@ -220,7 +203,6 @@ exports.approveDealer = async (req, res) => {
     try {
       await sendLoginCredentialsEmail(dealer.email, dealer.full_name, username, password);
       emailSent = true;
-      console.log("✅ Email sent successfully");
     } catch (error) {
       emailError = error.message;
       console.error("❌ Email sending failed:", error.message);
