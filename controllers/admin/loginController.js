@@ -128,29 +128,46 @@ exports.login = async (req, res) => {
 };
 
 // ==============================================
-// USER LOGIN (LEGACY - Consider using unified login above)
+// USER LOGIN - UPDATED TO ACCEPT ALL ROLES
 // ==============================================
 exports.userLogin = async (req, res) => {
   try {
     let data = req.body;
     
-    console.log("🔍 User Login Attempt:", data.email);
+    // Accept email, username, or identifier
+    const loginIdentifier = data.identifier || data.username || data.email;
+    
+    console.log("🔍 User Login Attempt with:", loginIdentifier);
+    
+    if (!loginIdentifier) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Email or username is required",
+      });
+    }
     
     // Search by BOTH email AND username for flexibility
     let checkEmail = await USER.findOne({
       $or: [
-        { email: data.email },
-        { username: data.email } // In case they send username in email field
+        { email: loginIdentifier },
+        { username: loginIdentifier }
       ]
     });
     
     if (!checkEmail) {
-      console.log("❌ User not found");
+      console.log("❌ User not found with:", loginIdentifier);
       return res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
     }
+    
+    console.log("✅ User Found:", {
+      username: checkEmail.username,
+      email: checkEmail.email,
+      role: checkEmail.role,
+      status: checkEmail.status
+    });
     
     if (!checkEmail.status) {
       console.log("❌ Account blocked");
@@ -160,18 +177,22 @@ exports.userLogin = async (req, res) => {
       });
     }
     
-    if (checkEmail.role != "user") {
-      console.log("❌ Invalid role:", checkEmail.role);
-      return res.send({
-        code: constant.errorCode,
-        message: "Invalid Credentials",
-      });
-    }
+    // REMOVED ROLE CHECK - Now accepts all roles (user, dealer, admin)
+    // if (checkEmail.role != "user") {
+    //   console.log("❌ Invalid role:", checkEmail.role);
+    //   return res.send({
+    //     code: constant.errorCode,
+    //     message: "Invalid Credentials",
+    //   });
+    // }
     
+    console.log("🔐 Comparing passwords...");
     let checkPassword = await bcrypt.compare(
       data.password,
       checkEmail.password
     );
+    
+    console.log("🔐 Password Match Result:", checkPassword);
     
     if (!checkPassword) {
       console.log("❌ Password mismatch");
@@ -180,6 +201,8 @@ exports.userLogin = async (req, res) => {
         message: "Invalid credentials",
       });
     }
+    
+    console.log("✅ Login Successful for role:", checkEmail.role);
     
     let token = jwt.sign(
       {
@@ -256,6 +279,9 @@ exports.createSuperAdmin = async (req, res) => {
     });
   }
 };
+
+
+
 
 // ==============================================
 // REGISTER USER
