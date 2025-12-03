@@ -235,3 +235,176 @@ exports.approveDealer = async (req, res) => {
     });
   }
 };
+exports.getDealerProfile = async (req, res) => {
+  try {
+    const userId = req.userId; 
+    
+    // Find the user
+    const user = await USER.findById(userId).select('-password');
+    if (!user) {
+      return res.send({
+        code: constant.errorCode,
+        message: "User not found"
+      });
+    }
+
+    // Find the dealer information
+    const dealer = await DEALER.findOne({ userId: userId });
+    if (!dealer) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Dealer information not found"
+      });
+    }
+
+    return res.send({
+      code: constant.successCode,
+      message: "Profile retrieved successfully",
+      result: {
+        dealer: {
+          _id: dealer._id,
+          business_name: dealer.business_name,
+          full_name: dealer.full_name,
+          phone: dealer.phone,
+          email: dealer.email,
+          country: dealer.country,
+          message: dealer.message,
+          status: dealer.status,
+          approvedAt: dealer.approvedAt,
+          createdAt: dealer.createdAt
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error in getDealerProfile:", err);
+    return res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
+exports.updateDealerProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { 
+      firstName, 
+      lastName, 
+      business_name, 
+      full_name, 
+      phone, 
+      country 
+    } = req.body;
+    const dealer = await DEALER.findOne({ userId: userId });
+    if (!dealer) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Dealer information not found"
+      });
+    }   
+    if (business_name) dealer.business_name = business_name;
+    if (full_name) dealer.full_name = full_name;
+    if (phone) dealer.phone = phone;
+    if (country) dealer.country = country;
+    
+    await dealer.save();
+
+    const updatedUser = await USER.findById(userId).select('-password');
+
+    return res.send({
+      code: constant.successCode,
+      message: "Profile updated successfully",
+      result: {
+        dealer: {
+          _id: dealer._id,
+          business_name: dealer.business_name,
+          full_name: dealer.full_name,
+          phone: dealer.phone,
+          email: dealer.email,
+          country: dealer.country,
+          message: dealer.message,
+          status: dealer.status
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error in updateDealerProfile:", err);
+    return res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
+exports.updateDealerPassword = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.send({
+        code: constant.errorCode,
+        message: "All password fields are required"
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.send({
+        code: constant.errorCode,
+        message: "New password and confirm password do not match"
+      });
+    }
+
+    // Check password length
+    if (newPassword.length < 6) {
+      return res.send({
+        code: constant.errorCode,
+        message: "New password must be at least 6 characters long"
+      });
+    }
+
+    // Find user with password field
+    const user = await USER.findById(userId);
+    if (!user) {
+      return res.send({
+        code: constant.errorCode,
+        message: "User not found"
+      });
+    }
+
+    // Verify current password
+    const isPasswordValid = bcrypt.compareSync(currentPassword, user.password);
+    if (!isPasswordValid) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Current password is incorrect"
+      });
+    }
+
+    // Check if new password is same as current password
+    const isSamePassword = bcrypt.compareSync(newPassword, user.password);
+    if (isSamePassword) {
+      return res.send({
+        code: constant.errorCode,
+        message: "New password cannot be the same as current password"
+      });
+    }
+
+    // Hash and update new password
+    const hashedPassword = bcrypt.hashSync(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.send({
+      code: constant.successCode,
+      message: "Password updated successfully"
+    });
+
+  } catch (err) {
+    console.error("❌ Error in updateDealerPassword:", err);
+    return res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
