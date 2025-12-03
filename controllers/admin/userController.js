@@ -723,8 +723,15 @@ exports.saveFileServiceForm = async (req, res) => {
 
 exports.getServicerForms = async (req, res) => {
   try {
-    const userEmail = req.user.email;
-    const status = req.params.status;
+    if (!req.userId) {
+      return res.send({
+        code: constant.errorCode,
+        message: "Unauthorized: User not authenticated",
+      });
+    }
+
+    const userId = req.userId; 
+    const status = req.params.status; 
 
     const getData = await FILESERVICE.aggregate([
       {
@@ -732,12 +739,11 @@ exports.getServicerForms = async (req, res) => {
           $and: [
             { completion_status: status },
             { isDeleted: false },
-            { "tuning.email": userEmail }   
+            { "tuning.user_id": userId }
           ]
         }
       }
     ]);
-
     if (!getData || getData.length === 0) {
       return res.send({
         code: constant.errorCode,
@@ -748,7 +754,7 @@ exports.getServicerForms = async (req, res) => {
     res.send({
       code: constant.successCode,
       message: "Success!",
-      result: getData
+      result: getData,
     });
 
   } catch (err) {
@@ -758,7 +764,6 @@ exports.getServicerForms = async (req, res) => {
     });
   }
 };
-
 
 exports.deleteServiceForm = async (req, res) => {
   try {
