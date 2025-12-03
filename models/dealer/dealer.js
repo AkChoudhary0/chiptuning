@@ -7,6 +7,7 @@ const dealerSchema = new mongoose.Schema({
   email: { type: String, required: true },
   country: { type: String, required: true },
   message: { type: String },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
 
   status: {
     type: String,

@@ -134,6 +134,7 @@ exports.approveDealer = async (req, res) => {
   try {
     const dealerId = req.params.dealerId;
     const { username, password } = req.body;    
+    
     if (!username || !password) {
       return res.send({
         code: constant.errorCode,
@@ -180,8 +181,10 @@ exports.approveDealer = async (req, res) => {
         message: "Username already taken. Please choose a different username."
       });
     }
+    
     const hashedPassword = bcrypt.hashSync(password, 10);
-        const newUser = await USER({
+    
+    const newUser = await USER({
       email: dealer.email,
       username: username,
       password: hashedPassword,
@@ -189,12 +192,23 @@ exports.approveDealer = async (req, res) => {
       lastName: dealer.full_name.split(' ').slice(1).join(' ') || '',
       role: "dealer",
       status: true 
-    }).save();     
-    // Update dealer status
+    }).save();
+    
+    console.log("✅ New user created with _id:", newUser._id);
+    console.log("✅ Type of newUser._id:", typeof newUser._id);
+    
+    // Update dealer status and userId
     dealer.status = "approved";
     dealer.approvedAt = new Date();
-    dealer.userId = newUser._id;
-    await dealer.save();
+    dealer.userId = newUser._id; // This should be MongoDB ObjectId
+    
+    const savedDealer = await dealer.save();
+    console.log("✅ Dealer updated with userId:", savedDealer.userId);
+    console.log("✅ Type of dealer.userId:", typeof savedDealer.userId);
+    
+    // Verify it was saved correctly
+    const verifyDealer = await DEALER.findById(dealerId);
+    console.log("✅ Verification - userId in database:", verifyDealer.userId);
     
     // Send email with credentials
     let emailSent = false;
@@ -221,7 +235,7 @@ exports.approveDealer = async (req, res) => {
           role: newUser.role,
           status: newUser.status
         },
-        dealer: dealer,
+        dealer: savedDealer,
         emailSent: emailSent,
         emailError: emailError
       }
@@ -238,9 +252,20 @@ exports.approveDealer = async (req, res) => {
 exports.getDealerProfile = async (req, res) => {
   try {
     const userId = req.userId; 
-    console.log("🚀 ~ userId:", userId);
-        const user = await USER.findById(userId);
-    console.log("🚀 ~ user:", user)
+    
+    console.log("=== GET DEALER PROFILE DEBUG ===");
+    console.log("1. userId from token:", userId);
+    console.log("2. userId type:", typeof userId);
+    console.log("3. userId constructor:", userId.constructor.name);
+    
+    // Check if user exists
+    const user = await USER.findById(userId);
+    console.log("4. User found:", user ? "YES" : "NO");
+    if (user) {
+      console.log("5. User email:", user.email);
+      console.log("6. User role:", user.role);
+    }
+    
     if (!user) {
       return res.send({
         code: constant.tokenErrorCode,
@@ -248,41 +273,26 @@ exports.getDealerProfile = async (req, res) => {
       });
     }
 
-    const dealer = await DEALER.findOne({ 
-      userId: userId.toString() 
-    });
+    // Try multiple ways to find dealer
+    console.log("7. Attempting to find dealer...");
     
+    // Method 1: Direct userId match
+    let dealer = await DEALER.findOne({ userId: userId });
+    console.log("8. Dealer found by userId:", dealer ? "YES" : "NO");
+
     if (!dealer) {
-      const dealerByEmail = await DEALER.findOne({ email: user.email });
-      
-      if (!dealerByEmail) {
-        return res.send({
-          code: constant.errorCode,
-          message: "Dealer information not found. Please contact support."
-        });
-      }
-            dealerByEmail.userId = userId;
-      await dealerByEmail.save();
-      
       return res.send({
-        code: constant.successCode,
-        message: "Profile retrieved successfully",
-        result: {
-          dealer: {
-            _id: dealerByEmail._id,
-            business_name: dealerByEmail.business_name,
-            full_name: dealerByEmail.full_name,
-            phone: dealerByEmail.phone,
-            email: dealerByEmail.email,
-            country: dealerByEmail.country,
-            message: dealerByEmail.message,
-            status: dealerByEmail.status,
-            approvedAt: dealerByEmail.approvedAt,
-            createdAt: dealerByEmail.createdAt
-          }
-        }
+        code: constant.errorCode,
+        message: "Dealer information not found. Please contact support."
       });
     }
+
+    console.log("16. Final dealer found:", {
+      _id: dealer._id,
+      userId: dealer.userId,
+      email: dealer.email,
+      status: dealer.status
+    });
 
     return res.send({
       code: constant.successCode,
@@ -314,6 +324,7 @@ exports.getDealerProfile = async (req, res) => {
 exports.updateDealerProfile = async (req, res) => {
   try {
     const userId = req.userId; 
+    console.log("🚀 ~ userId:", userId)
     const { 
       firstName, 
       lastName, 
@@ -324,6 +335,7 @@ exports.updateDealerProfile = async (req, res) => {
     } = req.body;
     
     const dealer = await DEALER.findOne({ userId: userId });
+    console.log("🚀 ~ dealer:", dealer)
     if (!dealer) {
       return res.send({
         code: constant.errorCode,
