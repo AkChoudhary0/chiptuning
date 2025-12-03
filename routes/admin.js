@@ -4,6 +4,7 @@ const adminController = require("../controllers/admin/adminController.js");
 const loginController = require("../controllers/admin/loginController.js");
 const { verifyToken } = require("../config/auth.js");
 const imageUpload = require("../middleware/imageUpload.js");
+const userController =require("../controllers/admin/userController.js")
 const dealerCtrl = require("../controllers/admin/dealerController.js");
 router.post("/login", loginController.login);
 router.get("/createSuperAdmin", loginController.createSuperAdmin);
@@ -50,4 +51,6 @@ router.delete("/deleteBlog/:blogId", [verifyToken], adminController.deleteBlog);
 
 router.get("/dealers", dealerCtrl.getAllDealerRequests);
 router.post("/dealer/approve/:dealerId", dealerCtrl.approveDealer);
+router.post("/getServicerForms/:status", [verifyToken], userController.getServicerForms);
+
 module.exports = router;

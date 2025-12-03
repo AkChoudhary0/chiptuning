@@ -80,15 +80,12 @@ exports.createDealerRequest = async (req, res) => {
   try {
     const { business_name, full_name, phone, email, country, message } = req.body;
 
-    // Check required fields
     if (!business_name || !full_name || !phone || !email || !country) {
       return res.send({
         code: constant.errorCode,
         message: "All required fields must be filled.",
       });
     }
-
-    // 🔍 Check if email already exists in dealer table
     const existingDealer = await DEALER.findOne({ email: email.trim().toLowerCase() });
 
     if (existingDealer) {
