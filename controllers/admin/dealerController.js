@@ -2,7 +2,7 @@ const DEALER = require("../../models/dealer/dealer");
 const USER = require("../../models/user/user");
 const constant = require("../../config/constant");
 const nodemailer = require("nodemailer");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 
 // AWS SES Email Configuration
 const transporter = nodemailer.createTransport({
@@ -135,6 +135,8 @@ exports.approveDealer = async (req, res) => {
     const dealerId = req.params.dealerId;
     const { username, password } = req.body;
     
+    console.log("🔍 Approval Request Data:", { username, password, dealerId });
+    
     if (!username || !password) {
       return res.send({
         code: constant.errorCode,
@@ -180,9 +182,12 @@ exports.approveDealer = async (req, res) => {
       });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10)
-    // Create login for dealer - FIXED TO MATCH SCHEMA
+    // Hash the password - FIXED: Use bcrypt.hashSync like in login controller
+    console.log("🔐 Original Password:", password);
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    console.log("🔐 Hashed Password:", hashedPassword);
+    
+    // Create login for dealer
     const newUser = await USER({
       email: dealer.email,
       username: username,
@@ -192,6 +197,14 @@ exports.approveDealer = async (req, res) => {
       role: "dealer",
       status: true 
     }).save();
+    
+    console.log("✅ User Created:", {
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+      role: newUser.role,
+      hashedPasswordLength: newUser.password.length
+    });
         
     dealer.status = "approved";
     dealer.approvedAt = new Date();

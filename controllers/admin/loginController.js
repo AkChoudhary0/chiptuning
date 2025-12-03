@@ -8,6 +8,9 @@ const jwt = require("jsonwebtoken");
 exports.login = async (req, res) => {
   try {
     let data = req.body;
+    
+    console.log("🔍 Login Attempt:", { username: data.username });
+    
     // Validate input
     if (!data.username || !data.password) {
       return res.send({
@@ -18,14 +21,19 @@ exports.login = async (req, res) => {
     
     // Find user by USERNAME
     let checkUser = await USER.findOne({ username: data.username });
-        if (checkUser) {
-      console.log("User details:", {
+    
+    if (checkUser) {
+      console.log("✅ User Found:", {
         _id: checkUser._id,
         username: checkUser.username,
         email: checkUser.email,
         role: checkUser.role,
-        status: checkUser.status
+        status: checkUser.status,
+        hashedPasswordLength: checkUser.password.length,
+        hashedPasswordPreview: checkUser.password.substring(0, 20) + "..."
       });
+    } else {
+      console.log("❌ User NOT Found with username:", data.username);
     }
     
     if (!checkUser) {
@@ -37,23 +45,35 @@ exports.login = async (req, res) => {
     }
     
     if (!checkUser.status) {
+      console.log("❌ User account is blocked");
       res.send({
         code: constant.errorCode,
         message: "Your account is blocked",
       });
       return;
     }
+    
+    console.log("🔐 Comparing passwords...");
+    console.log("   Input password:", data.password);
+    console.log("   Stored hash:", checkUser.password.substring(0, 30) + "...");
+    
     let checkPassword = await bcrypt.compare(
       data.password,
       checkUser.password
-    );    
+    );
+    
+    console.log("🔐 Password Match Result:", checkPassword);
+    
     if (!checkPassword) {
+      console.log("❌ Password comparison FAILED");
       res.send({
         code: constant.errorCode,
         message: "Invalid credentials",
       });
       return;
     }
+    
+    console.log("✅ Login Successful for:", checkUser.username);
     
     let token = jwt.sign(
       {
@@ -64,6 +84,7 @@ exports.login = async (req, res) => {
       process.env.JWTSECRET,
       { expiresIn: "1d" }
     );
+    
     res.send({
       code: constant.successCode,
       message: "Login Successfully",
@@ -85,7 +106,6 @@ exports.login = async (req, res) => {
     });
   }
 };
-
 exports.userLogin = async (req, res) => {
   try {
     let data = req.body;
