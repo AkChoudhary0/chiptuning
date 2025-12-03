@@ -30,7 +30,7 @@ router.post("/getECUDetail", [verifyToken], userController.getECUDetail);
 router.post("/getGenerationDropDown", [verifyToken], userController.getGenerationDropDown);
 router.get('/profile', [verifyToken], dealerCtrl.getDealerProfile);
 router.put('/profile', [verifyToken], dealerCtrl.updateDealerProfile);
-router.put('/password', [verifyToken], dealerCtrl.updatePassword);
+router.put('/password', [verifyToken], dealerCtrl.updateDealerPassword);
 
 // copied for api without login required
 router.post("/withoutlogin/login", loginController.userLogin);
