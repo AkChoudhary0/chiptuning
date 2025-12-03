@@ -737,20 +737,22 @@ exports.getServicerForms = async (req, res) => {
       });
     }
 
-    const userId = req.userId; 
-    const status = req.params.status; 
+    const userId = req.userId;
+    const status = req.params.status;
+    const userRole = req.role;   // <-- CORRECT
 
-    const getData = await FILESERVICE.aggregate([
-      {
-        $match: {
-          $and: [
-            { completion_status: status },
-            { isDeleted: false },
-            { "tuning.user_id": userId }
-          ]
-        }
-      }
-    ]);
+    let matchQuery = {
+      completion_status: status,
+      isDeleted: false,
+    };
+
+    // ONLY FILTER BY USER_ID IF ROLE IS NOT ADMIN
+    if (userRole !== "admin") {
+      matchQuery["tuning.user_id"] = userId;
+    }
+
+    const getData = await FILESERVICE.aggregate([{ $match: matchQuery }]);
+
     if (!getData || getData.length === 0) {
       return res.send({
         code: constant.errorCode,
@@ -771,6 +773,7 @@ exports.getServicerForms = async (req, res) => {
     });
   }
 };
+
 
 exports.deleteServiceForm = async (req, res) => {
   try {
