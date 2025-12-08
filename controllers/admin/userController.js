@@ -736,17 +736,16 @@ exports.getServicerForms = async (req, res) => {
         message: "Unauthorized: User not authenticated",
       });
     }
-
+ 
     const userId = req.userId;
     const status = req.params.status;
-    const userRole = req.role;   // <-- CORRECT
+    const userRole = req.role;  
 
     let matchQuery = {
       completion_status: status,
       isDeleted: false,
     };
 
-    // ONLY FILTER BY USER_ID IF ROLE IS NOT ADMIN
     if (userRole !== "admin") {
       matchQuery["tuning.user_id"] = userId;
     }

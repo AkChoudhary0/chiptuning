@@ -417,3 +417,28 @@ exports.updateDealerPassword = async (req, res) => {
     });
   }
 };
+
+exports.getApprovedDealers = async (req, res) => {
+  try {
+    const approvedDealers = await DEALER.find({ status: "approved" })
+      .select('business_name full_name phone email country approvedAt createdAt')
+      .sort({ approvedAt: -1 }); 
+    const totalCount = approvedDealers.length;
+
+    return res.send({
+      code: constant.successCode,
+      message: "Approved dealers retrieved successfully",
+      result: {
+        dealers: approvedDealers,
+        totalCount: totalCount
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error in getApprovedDealers:", err);
+    return res.send({
+      code: constant.errorCode,
+      message: err.message
+    });
+  }
+};
