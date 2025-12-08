@@ -15,7 +15,6 @@ router.post("/login", loginController.userLogin);
 router.post("/registerUser", loginController.registerUser);
 router.post("/getEngine/:engineType", [verifyToken], adminController.getEngine);
 router.post("/getMakesWithModels", [verifyToken], adminController.getMakesWithModels);
-
 router.post("/getVehicleDropDown/:type", [verifyToken], userController.getVehicleDropDown);
 router.post("/saveFileServiceForm", [verifyToken], userController.saveFileServiceForm);
 router.post("/getServicerForms/:status", [verifyToken], userController.getServicerForms);
@@ -33,6 +32,8 @@ router.put('/profile', [verifyToken], dealerCtrl.updateDealerProfile);
 router.put('/password', [verifyToken], dealerCtrl.updateDealerPassword);
 
 // copied for api without login required
+router.get("/dealers",dealerCtrl.getApprovedDealers)
+
 router.post("/withoutlogin/login", loginController.userLogin);
 router.post("/withoutlogin/registerUser", loginController.registerUser);
 router.post("/withoutlogin/getEngine/:engineType", adminController.getEngine);
@@ -45,7 +46,6 @@ router.get("/withoutlogin/getAllBlogs", adminController.getAllBlogsPublic);
 router.delete("/withoutlogin/deleteServiceForm/:id", userController.deleteServiceForm);
 router.get("/withoutlogin/getServicerFormById/:id", userController.getServicerFormById);
 router.get("/withoutlogin/getBlogById/:blogId", adminController.getBlogByIdPublic);
-
 router.get("/withoutlogin/getEngineById/:engineId", userController.getEngineById);
 router.post("/withoutlogin/getEngineDetail", userController.getEngineDetail);
 router.post("/withoutlogin/getECUDetail", userController.getECUDetail);

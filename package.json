@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node index.js",
-    "build": "echo 'No build step required'"
+    "start": "node init && node index.js",
+    "build": "node init && echo 'No build step required'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.787.0",
